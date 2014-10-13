@@ -1,0 +1,18 @@
+/*
+Author: Flavius Tirnacop
+Grupa: 341C1
+File: Readme
+*/
+
+Caracteristici Hardware:
+	- Intel Core i3-370M
+	- # of Cores	2
+	- # of Threads	4
+	- Clock Speed	2.4 GHz
+	- Intel® Smart Cache	3 MB
+	- DMI	2.5 GT/s
+	- Instruction Set	64-bit
+
+Caracteristici SoftWare:
+	- Distribuite: Ubuntu 14.04 64-bit
+	- Versiune GCC: 4.7.2 ????
