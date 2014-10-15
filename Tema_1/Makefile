@@ -2,10 +2,10 @@
 # Grupa: 341C1
 # Fisier: serial.c
 
-all: serial
+all: clean serial
 
 serial:
-	gcc -o serial serial.c -Wall
+	colorgcc -o serial serial.c -Wall
 
 # paralel:
 	# TODO

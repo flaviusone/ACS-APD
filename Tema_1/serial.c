@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 /*-----  End of Includes & Defines  ------*/
 
 int main(int argc, char **argv){
@@ -22,7 +23,8 @@ int main(int argc, char **argv){
 				 W, H,				/* Lungime si latime harta simulata */
 				 i, j;				/* Aux vars */
 
-	unsigned char** matA, matB;		/* Matrice de lucru */
+	unsigned short** matA;		/* Matrice de lucru veche*/
+	unsigned short** matB;		/* Matrice de lucru noua*/
 	/*-----  End of Variabile declarate  ------*/
 
 	/*==============================================
@@ -31,9 +33,13 @@ int main(int argc, char **argv){
 
 	/* Deschide fisier citire */
 	f = fopen(argv[1], "r");
+	if (f == NULL) {
+    	perror("open");
+    	exit(EXIT_FAILURE);
+	}
 
 	/* Citeste modul T sau P */
-	fscanf(f, "%c", mode);
+	fscanf(f, "%c", &mode);
 
 	/* Citeste lungime si latime harti */
 	fscanf(f, "%u", &W_harta);
@@ -41,10 +47,31 @@ int main(int argc, char **argv){
 	fscanf(f, "%u", &W);
 	fscanf(f, "%u", &H);
 
-	/* TODO - Alocam matrice initiale */
+	/* Alocam matrice initiale */
+	matA = (unsigned short **)calloc(H, sizeof(unsigned short *));
+	matB = (unsigned short **)calloc(H, sizeof(unsigned short *));
+	for (i = 0; i < H; i++) {
+		matA[i] = (unsigned short *)calloc(W, sizeof(unsigned short));
+		matB[i] = (unsigned short *)calloc(W, sizeof(unsigned short));
+	}
+	/* Citire matrice din fisier */
+	for(i = 0 ; i < H_harta ; i++){
+		for(j = 0 ; j < W_harta ; j++){
+			fscanf(f,"%hu",&matA[i][j]);
+		}
+	}
 
-	/* TODO - Citire matrice din fisier */
+	for(i = 0 ; i < H_harta ; i++){
+		for(j = 0 ; j < W_harta ; j++){
+			printf("%hu\t",matA[i][j]);
+		}
+		printf("\n");
+	}
 
+	/* Inchidem fisierul de input */
+	fclose(f);
+
+	/* TODO - Deschide fisier de scriere */
 
 	/*-----  End of Citiri & initializari  ------*/
 
@@ -55,4 +82,3 @@ int main(int argc, char **argv){
 
 
 
-comm
