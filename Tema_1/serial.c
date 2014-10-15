@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "utils.h"
 /*-----  End of Includes & Defines  ------*/
 
 int main(int argc, char **argv){
@@ -21,6 +22,7 @@ int main(int argc, char **argv){
 	char mode;
 	unsigned int W_harta, H_harta,	/* Lungime si latime harta */
 				 W, H,				/* Lungime si latime harta simulata */
+					N,				/* Number of steps */
 				 i, j;				/* Aux vars */
 
 	unsigned short** matA;		/* Matrice de lucru veche*/
@@ -37,6 +39,9 @@ int main(int argc, char **argv){
     	perror("open");
     	exit(EXIT_FAILURE);
 	}
+
+	/* Citeste Number of steps */
+	N = atoi(argv[3]);
 
 	/* Citeste modul T sau P */
 	fscanf(f, "%c", &mode);
@@ -60,23 +65,41 @@ int main(int argc, char **argv){
 			fscanf(f,"%hu",&matA[i][j]);
 		}
 	}
-
-	for(i = 0 ; i < H_harta ; i++){
-		for(j = 0 ; j < W_harta ; j++){
-			printf("%hu\t",matA[i][j]);
-		}
-		printf("\n");
+	/* Deschide fisier pentru scriere */
+	f = fopen(argv[2], "w+");
+	if (f == NULL) {
+    	perror("open");
+    	exit(EXIT_FAILURE);
 	}
-
-	/* Inchidem fisierul de input */
-	fclose(f);
-
-	/* TODO - Deschide fisier de scriere */
-
 	/*-----  End of Citiri & initializari  ------*/
 
 
+	/*=========================================
+	=            Secitune Algoritm            =
+	=========================================*/
 
+	while(N > 0){
+		for(i = 0 ; i < H_harta+1 ; ++i){
+			for(j = 0 ; j < W_harta+1 ; ++j){
+				// Call Mutate
+				// Daca este pe margine si a devenit alive W_harta/H_harta++
+			}
+		}
+
+
+		N--;
+	}
+
+	print_fisier(f, matA, W, H);
+	/*-----  End of Secitune Algoritm  ------*/
+
+
+
+
+
+
+	/* Inchidem fisierul de input */
+	fclose(f);
 	return 0;
 }
 
