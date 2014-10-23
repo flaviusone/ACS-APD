@@ -23,6 +23,7 @@ int main(int argc, char **argv){
 	unsigned int W_harta, H_harta,	/* Lungime si latime harta */
 				 W, H,				/* Lungime si latime harta simulata */
 					N,				/* Number of steps */
+			 threadNo,				/* Number of threads */
 				 i, j;				/* Aux vars */
 
 	unsigned short** matA;		/* Matrice de lucru veche*/
@@ -33,15 +34,18 @@ int main(int argc, char **argv){
 	=            Citiri si initializari            =
 	==============================================*/
 
+	/* Citire number of threads */
+	threadNo = atoi(argv[1]);
+
+	/* Citeste Number of steps */
+	N = atoi(argv[2]);
+
 	/* Deschide fisier citire */
-	f = fopen(argv[1], "r");
+	f = fopen(argv[3], "r");
 	if (f == NULL) {
     	perror("open");
     	exit(EXIT_FAILURE);
 	}
-
-	/* Citeste Number of steps */
-	N = atoi(argv[3]);
 
 	/* Citeste modul T sau P */
 	fscanf(f, "%c", &mode);
@@ -66,7 +70,7 @@ int main(int argc, char **argv){
 		}
 	}
 	/* Deschide fisier pentru scriere */
-	f = fopen(argv[2], "w+");
+	f = fopen(argv[4], "w+");
 	if (f == NULL) {
     	perror("open");
     	exit(EXIT_FAILURE);
@@ -92,10 +96,6 @@ int main(int argc, char **argv){
 
 	print_fisier(f, matA, W, H);
 	/*-----  End of Secitune Algoritm  ------*/
-
-
-
-
 
 
 	/* Inchidem fisierul de input */

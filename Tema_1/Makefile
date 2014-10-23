@@ -1,14 +1,11 @@
 # Author: Flavius Tirnacop
 # Grupa: 341C1
-# Fisier: serial.c
+# Fisier: build.c
 
-all: clean serial
+all: clean build
 
-serial:
-	colorgcc -o serial serial.c -Wall
-
-# paralel:
-	# TODO
+build:
+	colorgcc -o tema1 tema1.c -Wall
 
 clean:
 	rm -f serial *~
