@@ -5,7 +5,7 @@
 all: clean build
 
 build:
-	colorgcc -o tema1 tema1.c -Wall
+	gcc -o tema1 tema1.c -Wall
 
 clean:
 	rm -f serial *~
