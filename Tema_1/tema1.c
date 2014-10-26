@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "utils.h"
+#include <omp.h>
 
 #define GOL 0
 #define INDIVID 1
@@ -85,6 +86,7 @@ int main(int argc, char **argv){
 	unsigned short** matA;		/* Matrice de lucru veche*/
 	unsigned short** matB;		/* Matrice de lucru noua*/
 	unsigned short** auxmat;	/* Aux mat */
+
 	/*-----  End of Variabile declarate  ------*/
 
 	/*==============================================
@@ -93,6 +95,7 @@ int main(int argc, char **argv){
 
 	/* Citire number of threads */
 	threadNo = atoi(argv[1]);
+	omp_set_num_threads(threadNo);
 
 	/* Citeste Number of steps */
 	N = atoi(argv[2]);
@@ -112,11 +115,13 @@ int main(int argc, char **argv){
 	fscanf(f, "%u", &H_harta);
 	fscanf(f, "%u", &W);
 	fscanf(f, "%u", &H);
+	int chunk = W*H/W;
 
 	/* Alocam matrice initiale bordate cu 0*/
 	matA = (unsigned short **)calloc(H+2, sizeof(unsigned short *));
 	matB = (unsigned short **)calloc(H+2, sizeof(unsigned short *));
 
+	#pragma omp parallel for private(i)
 	for (i = 0; i < H+2; i++) {
 		matA[i] = (unsigned short *)calloc(W+2, sizeof(unsigned short));
 		matB[i] = (unsigned short *)calloc(W+2, sizeof(unsigned short));
@@ -141,6 +146,9 @@ int main(int argc, char **argv){
 	=========================================*/
 
 	while(N > 0){
+		#pragma omp parallel for collapse(2)\
+		shared(H_harta,W_harta,matA,matB)\
+		private(i,j) schedule(static)
 		for(i = 1 ; i < H_harta + 1 ; ++i)
 			for(j = 1 ; j < W_harta + 1 ; ++j)
 				mutate(matA, matB, i, j);
@@ -164,6 +172,8 @@ int main(int argc, char **argv){
 			dim_h = H_harta + 1;
 
 		/* Verificam marginea inferioara*/
+		#pragma omp parallel for private(i,res) shared(dim_w, flag_w, matA, matB)\
+		schedule(static)
 		for(i = 1 ; i < dim_h ; ++i){
 			res = mutate(matA, matB, i, dim_w);
 			if (res == INDIVID)
@@ -175,6 +185,8 @@ int main(int argc, char **argv){
 
 
 		/* Verificam marginea din dreapta*/
+		#pragma omp parallel for private(j,res) shared(dim_w, flag_w, matA, matB)\
+		schedule(static)
 		for(j = 1 ; j < dim_w ; ++j){
 			res = mutate(matA, matB, dim_h, j);
 			if (res == INDIVID)
@@ -195,15 +207,23 @@ int main(int argc, char **argv){
 		if(mode == 'T'){
 
 				/* Tops */
+				#pragma omp parallel for private(j) shared(H, W, matA, matB)\
+				schedule(static)
 				for (j = 1; j < W+1; ++j)
 					matB[0][j] = matB[H][j];
-				for (j = 1; j < W+1; ++j)
+				#pragma omp parallel for private(j) shared(H, W, matA, matB)\
+				schedule(static)
+				for (j = 1; j < W_harta+1; ++j)
 					matB[H+1][j] = matB[1][j];
 
 				/* Sides */
+				#pragma omp parallel for private(i) shared(H, W, matA, matB)\
+				schedule(static)
 				for (i = 1; i < H+1; ++i)
 					matB[i][0] = matB[i][W];
-				for (i = 1; i < H+1; ++i)
+				#pragma omp parallel for private(i) shared(H, W, matA, matB)\
+				schedule(static)
+				for (i = 1; i < H_harta+1; ++i)
 					matB[i][W+1] = matB[i][1];
 
 				matB[0][0] = matB[H][W];
@@ -222,11 +242,15 @@ int main(int argc, char **argv){
 
 		N--;
 	}
-	W_harta = 0;
-	H_harta = 0;
-	for (i = 1; i < H+1; ++i)
+	W_harta = 1;
+	H_harta = 1;
+
+	#pragma omp parallel for\
+	shared(H_harta,W_harta,matA)\
+	private(i,j) schedule(static)
+	for (i = H_harta; i < H+1; ++i)
 	{
-		for (j = 1; j < W+1; ++j)
+		for (j = W_harta; j < W+1; ++j)
 		{
 			if(matA[i][j]){
 				W_harta = j;
