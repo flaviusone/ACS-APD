@@ -5,7 +5,7 @@
 all: clean build
 
 build:
-	gcc -fopenmp -o tema1 tema1.c -Wall
+	gcc -fopenmp -o tema1 tema1.c -Wall -g3
 
 clean:
 	rm -f serial *~

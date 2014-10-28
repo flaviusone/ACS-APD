@@ -21,3 +21,17 @@ void print_fisier(FILE* f, unsigned short** mat, char mode,
 		fprintf(f,"\n");
 	}
 }
+
+// alocare in zona continua de memorie
+unsigned short **allocMat(int w, int h)
+{
+    unsigned short **mat;
+    unsigned short *buf;
+    buf = (unsigned short *) calloc(h * w, sizeof(unsigned short));
+    int i;
+    mat = (unsigned short **) calloc(h, sizeof(unsigned short *));
+    #pragma omp parallel for private(i) shared(buf, w, h) schedule(static)
+    for (i = 0; i < h; i++)
+        mat[i] = buf + i * w;
+    return mat;
+}
