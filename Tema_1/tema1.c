@@ -30,17 +30,13 @@ static void update_sides(unsigned short** matA, unsigned short** matB,
 {
 	register int i,j;
 
-	/* Tops */
+	/* Top & Bottom */
 	#pragma omp parallel for private(j) shared(H, W, matA, matB)\
 	schedule(static)
 	for (j = 1; j < W_harta+1; ++j){
 		matB[0][j] = matB[H][j];
 		matB[H+1][j] = matB[1][j];
 	}
-	// #pragma omp parallel for private(j) shared(H, W, matA, matB)\
-	// schedule(static)
-	// for (j = 1; j < W_harta+1; ++j)
-	// 	matB[H+1][j] = matB[1][j];
 
 	/* Sides */
 	#pragma omp parallel for private(i) shared(H, W, matA, matB)\
@@ -49,11 +45,8 @@ static void update_sides(unsigned short** matA, unsigned short** matB,
 		matB[i][0] = matB[i][W];
 		matB[i][W+1] = matB[i][1];
 	}
-	// #pragma omp parallel for private(i) shared(H, W, matA, matB)\
-	// schedule(static)
-	// for (i = 1; i < H_harta+1; ++i)
-	// 	matB[i][W+1] = matB[i][1];
 
+	/* Corners */
 	#pragma omp parallel shared(matB, H, W)
 	{
 		matB[0][0] = matB[H][W];
@@ -66,33 +59,17 @@ static void update_sides(unsigned short** matA, unsigned short** matB,
 static unsigned int mutate(unsigned short** matA, unsigned short** matB,
 	unsigned int i, unsigned int j){
 	unsigned short vecini = 0;
-	// unsigned short element;
 	/* Count vecini */
 	vecini = vecini + \
 			matA[i-1][j-1] 	+ 	matA[i-1][j] 	+\
 			matA[i-1][j+1] 	+ 	matA[i][j+1] 	+\
-			matA[i][j-1] 	+ 	matA[i+1][j-1] 	+\
-			matA[i+1][j] 	+	matA[i+1][j+1];
+			matA[i][j-1] 	;
+			//+ 	matA[i+1][j-1] 	+
+			// matA[i+1][j] 	+	matA[i+1][j+1];
 
-	// if(vecini > 0)
-	// 	printf("Vecini [%d][%d] %d\n", i, j, vecini);
-	// element = matA[i][j];
-
-	// if(vecini == 2)
-	// {
-	// 	matB[i][j] = element;
-	// 	return element;
-	// }
-	// if(vecini == 3)
-	// {
-	// 	matB[i][j] = INDIVID;
-	// 	return INDIVID;
-	// }
-	// else
-	// {
-	// 	matB[i][j] = GOL;
-	// 	return GOL;
-	// }
+	if( vecini < 4){
+		vecini += matA[i+1][j-1] + matA[i+1][j]	+ matA[i+1][j+1];
+	}
 
 	if (matA[i][j] == GOL)
 	{
@@ -136,10 +113,8 @@ int main(int argc, char **argv){
 				 W, H,				/* Lungime si latime harta simulata */
 					N;				/* Number of steps */
 	unsigned int 			/* Number of threads */
-				 i, j, res,			/* Aux vars */
-				 // flag_w, flag_h,	/* Aux vars */
-				 dim_h, dim_w;		/* Aux vars */
-	unsigned int flag_h[8] , flag_w[8];
+				 i, j;
+				 // k,l, res,			/* Aux vars */
 
 	unsigned short** matA;		/* Matrice de lucru veche*/
 	unsigned short** matB;		/* Matrice de lucru noua*/
@@ -172,7 +147,7 @@ int main(int argc, char **argv){
 	fscanf(f, "%u", &H_harta);
 	fscanf(f, "%u", &W);
 	fscanf(f, "%u", &H);
-	int chunk = W/atoi(argv[1]);
+	// int chunk = W/atoi(argv[1]);
 	if(W_harta > W) W_harta = W;
 	if(H_harta > H) H_harta = H;
 
@@ -211,80 +186,24 @@ int main(int argc, char **argv){
 
 	while(N > 0){
 		#pragma omp parallel for collapse(2)\
-		shared(H_harta,W_harta,matA,matB)\
-		private(i,j) schedule(guided)
-		for(i = 1 ; i < H_harta + 1 ; ++i)
-			for(j = 1 ; j < W_harta + 1 ; ++j){
+		shared(H,W,matA,matB)\
+		private(i,j) schedule(static)
+		for(i = 1 ; i < H + 1 ; ++i)
+			for(j = 1 ; j < W + 1 ; ++j){
 				// printf("Thread %d cu %d %d\n", omp_get_thread_num(), i, j);
 				mutate(matA, matB, i, j);
 			}
-
-
-
-		/* Verificam marginile pentru a vedea daca
-		 * trebuie extinsa suprafata actuala de verificare */
-		// flag_h = flag_w = 0;
-		memset(flag_h, 0 ,sizeof(flag_h));
-		memset(flag_w, 0 ,sizeof(flag_w));
-
-		/* Evitam depasirea matricei in cazul in
-		 * care se ajunge la margini */
-		if(W_harta >= W)
-			dim_w = W_harta ;
-		else
-			dim_w = W_harta + 1;
-
-		if(H_harta >= H)
-			dim_h = H_harta;
-		else
-			dim_h = H_harta + 1;
-
-		/* Verificam marginea inferioara*/
-		#pragma omp parallel for private(i,res) shared(dim_w, flag_w, matA, matB)\
-		schedule(static)
-		for(i = 1 ; i < dim_h ; ++i){
-			res = mutate(matA, matB, i, dim_w);
-			if (res == INDIVID && !flag_w[omp_get_thread_num()]){
-				flag_w[omp_get_thread_num()] = 1;
-				// printf("BOOM flag[%d]\n", omp_get_thread_num());
-			}
-		}
-
-		/* Evitam depasirea matricei in cazul in
-		 * care se ajunge la margini */
-
-
-		/* Verificam marginea din dreapta*/
-		#pragma omp parallel for private(j,res) shared(dim_w, flag_h, matA, matB)\
-		schedule(static)
-		for(j = 1 ; j < dim_w ; ++j){
-			res = mutate(matA, matB, dim_h, j);
-			if (res == INDIVID && !flag_h[omp_get_thread_num()]){
-				flag_h[omp_get_thread_num()] = 1;
-				// printf("BOOM flag[%d]\n", omp_get_thread_num());
-			}
-		}
-		for (i = 0; i < 8; ++i)
-		{
-			if(flag_h[i] && H_harta<H)
-			{
-
-				++H_harta;
-				break;
-			}
-		}
-		for (i = 0; i < 8; ++i)
-		{
-			if(flag_w[i] && W_harta<W)
-			{
-				++W_harta;
-				break;
-			}
-		}
-		// printf("H_harta %d W_harta %d\n",H_harta, W_harta );
-		// if (flag_h && H_harta<H) ++H_harta;
-		// if (flag_w && W_harta<W) ++W_harta;
-
+		// int varaux = 4;
+		// #pragma omp parallel for collapse(2) private(i,j,k,l) schedule(static)
+		// for( k = 0 ; k < varaux ; k++){
+		// 	for( l = 0 ; l < varaux ; l++){
+		// 		for(i = 1 + k *  H_harta / varaux; i < (k+1) *  H_harta / varaux + 1 ; ++i)
+		// 			for(j = 1 + l * W_harta / varaux ; j < (l+1) * W_harta / varaux + 1 ; ++j){
+		// 				mutate(matA, matB, i, j);
+		// 				// printf("Thread %d cu %d %d\n", omp_get_thread_num(), i, j);
+		// 			}
+		// 	}
+		// }
 
 		// print_consola(matA, mode, W_harta, H_harta, W, H);
 		// getchar();
@@ -292,7 +211,7 @@ int main(int argc, char **argv){
 
 		/* Update sides if Toroid */
 		if(mode == 'T'){
-			update_sides(matA, matB, W_harta, H_harta, W, H);
+			update_sides(matA, matB, W, H, W, H);
 		}
 
 		// print_consola(matA, mode, W_harta, H_harta, W, H);
@@ -307,20 +226,14 @@ int main(int argc, char **argv){
 		// for (i = 0; i < H+2; i++) {
 		// 	memset(matB[i], 0 , (W+2) * sizeof(unsigned short));
 		// }
-		// #pragma omp parallel for collapse(2) schedule(static) private(i,j)
-  //       for(i = 0 ; i < H + 2 ; ++i)
-		// 	for(j = 0 ; j < W + 2 ; ++j)
-		// 		matB[i][j] = 0;
-
 
 		N--;
+
 	}
 	W_harta = 0;
 	H_harta = 0;
 
-	// #pragma omp parallel for\
-	// shared(H_harta,W_harta,matA)\
-	// private(i,j) schedule(static)
+	/* Recalculam W_harta si H_harta */
 	for (i = H_harta; i < H+1; ++i)
 	{
 		for (j = W_harta; j < W+1; ++j)
@@ -341,6 +254,3 @@ int main(int argc, char **argv){
 	fclose(f);
 	return 0;
 }
-
-
-
