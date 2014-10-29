@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include "utils.h"
 #include <omp.h>
+#include <limits.h>
 
 #define GOL 0
 #define INDIVID 1
@@ -63,13 +64,12 @@ static unsigned int mutate(unsigned short** matA, unsigned short** matB,
 	vecini = vecini + \
 			matA[i-1][j-1] 	+ 	matA[i-1][j] 	+\
 			matA[i-1][j+1] 	+ 	matA[i][j+1] 	+\
-			matA[i][j-1] 	;
-			//+ 	matA[i+1][j-1] 	+
-			// matA[i+1][j] 	+	matA[i+1][j+1];
+			matA[i][j-1] 	+ 	matA[i+1][j-1] 	+\
+			matA[i+1][j] 	+	matA[i+1][j+1];
 
-	if( vecini < 4){
-		vecini += matA[i+1][j-1] + matA[i+1][j]	+ matA[i+1][j+1];
-	}
+	// if( vecini < 4){
+	// 	vecini += matA[i+1][j-1] + matA[i+1][j]	+ matA[i+1][j+1];
+	// }
 
 	if (matA[i][j] == GOL)
 	{
@@ -112,13 +112,14 @@ int main(int argc, char **argv){
 	unsigned int W_harta, H_harta,	/* Lungime si latime harta */
 				 W, H,				/* Lungime si latime harta simulata */
 					N;				/* Number of steps */
-	unsigned int 			/* Number of threads */
-				 i, j;
-				 // k,l, res,			/* Aux vars */
+	unsigned int 					/* Number of threads */
+				 i, j,
+				 k,l;				/* Aux vars */
 
 	unsigned short** matA;		/* Matrice de lucru veche*/
 	unsigned short** matB;		/* Matrice de lucru noua*/
 	unsigned short** auxmat;	/* Aux mat */
+	char* buff = malloc(sizeof(char));
 
 	/*-----  End of Variabile declarate  ------*/
 
@@ -167,9 +168,19 @@ int main(int argc, char **argv){
 		for(j = 1 ; j < W_harta+1 ; ++j){
 			fscanf(f,"%hu",&matA[i][j]);
 		}
+		fgets(buff, INT_MAX, f);
 	}
 	fclose(f);
 
+	/* Deschide fisier pentru scriere */
+	f = fopen("stuff.vmr", "a");
+	if (f == NULL) {
+		perror("open");
+		exit(EXIT_FAILURE);
+	}
+	fprintf(f,"%c %u %u %u %u\n", mode, W_harta, H_harta, W, H);
+
+	fclose(f);
 
 	/* Deschide fisier pentru scriere */
 	f = fopen(argv[4], "w+");
@@ -185,34 +196,46 @@ int main(int argc, char **argv){
 	=========================================*/
 
 	while(N > 0){
-		#pragma omp parallel for collapse(2)\
-		shared(H,W,matA,matB)\
-		private(i,j) schedule(static)
-		for(i = 1 ; i < H + 1 ; ++i)
-			for(j = 1 ; j < W + 1 ; ++j){
-				// printf("Thread %d cu %d %d\n", omp_get_thread_num(), i, j);
-				mutate(matA, matB, i, j);
-			}
-		// int varaux = 4;
-		// #pragma omp parallel for collapse(2) private(i,j,k,l) schedule(static)
-		// for( k = 0 ; k < varaux ; k++){
-		// 	for( l = 0 ; l < varaux ; l++){
-		// 		for(i = 1 + k *  H_harta / varaux; i < (k+1) *  H_harta / varaux + 1 ; ++i)
-		// 			for(j = 1 + l * W_harta / varaux ; j < (l+1) * W_harta / varaux + 1 ; ++j){
-		// 				mutate(matA, matB, i, j);
-		// 				// printf("Thread %d cu %d %d\n", omp_get_thread_num(), i, j);
-		// 			}
-		// 	}
-		// }
+
+		// print_consola(matA, mode, W_harta, H_harta, W, H);
+		// getchar();
+
+		/* Update sides if Toroid */
+		if(mode == 'T'){
+			update_sides(matA, matA, W, H, W, H);
+		}
 
 		// print_consola(matA, mode, W_harta, H_harta, W, H);
 		// getchar();
 
 
-		/* Update sides if Toroid */
-		if(mode == 'T'){
-			update_sides(matA, matB, W, H, W, H);
+		/* Varianta de baza */
+		// #pragma omp parallel for collapse(2)\
+		// shared(H,W,matA,matB)\
+		// private(i,j) schedule(static)
+		// for(i = 1 ; i < H + 1 ; ++i)
+		// 	for(j = 1 ; j < W + 1 ; ++j){
+		// 		// printf("Thread %d cu %d %d\n", omp_get_thread_num(), i, j);
+		// 		mutate(matA, matB, i, j);
+		// 	}
+
+		/* Varianta de test */
+		int varaux = 2 * atoi(argv[1]);
+		#pragma omp parallel for collapse(2) private(i,j,k,l) schedule(static)
+		for( k = 0 ; k < varaux ; k++){
+			for( l = 0 ; l < varaux ; l++){
+				for(i = 1 + k *  H / varaux; i < (k+1) *  H / varaux + 1 ; ++i)
+					for(j = 1 + l * W / varaux ; j < (l+1) * W / varaux + 1 ; ++j){
+						mutate(matA, matB, i, j);
+						// printf("Thread %d cu %d %d\n", omp_get_thread_num(), i, j);
+					}
+			}
 		}
+
+		// print_consola(matA, mode, W_harta, H_harta, W, H);
+		// getchar();
+
+
 
 		// print_consola(matA, mode, W_harta, H_harta, W, H);
 		// getchar();
@@ -230,18 +253,19 @@ int main(int argc, char **argv){
 		N--;
 
 	}
-	W_harta = 0;
-	H_harta = 0;
+	W_harta = 1;
+	H_harta = 1;
 
 	/* Recalculam W_harta si H_harta */
-	for (i = H_harta; i < H+1; ++i)
+	#pragma omp parallel for private(i,j) shared(matA,W_harta,H_harta) schedule(static)
+	for (i = 1; i < H+1; ++i)
 	{
 		for (j = W_harta; j < W+1; ++j)
 		{
 
 			if(matA[i][j]){
-				W_harta = j;
-				H_harta = i;
+				if(i>H_harta)H_harta = i;
+				if(j>W_harta)W_harta = j;
 			}
 		}
 	}
