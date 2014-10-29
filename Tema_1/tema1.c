@@ -100,17 +100,6 @@ int main(int argc, char **argv){
 			update_toroid(matA, matA, W, H);
 		}
 
-		/* Varianta de baza */
-		// #pragma omp parallel for collapse(2)\
-		// shared(H,W,matA,matB)\
-		// private(i,j) schedule(auto)
-		// for(i = 1 ; i < H + 1 ; ++i)
-		// 	for(j = 1 ; j < W + 1 ; ++j){
-		// 		// printf("Thread %d cu %d %d\n", omp_get_thread_num(), i, j);
-		// 		mutate(matA, matB, i, j);
-		// 	}
-
-		/* Varianta de test */
 		varaux_h = H/atoi(argv[1]);
 		varaux_w = W/atoi(argv[1]);
 
