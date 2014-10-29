@@ -1,6 +1,6 @@
 # Author: Flavius Tirnacop
 # Grupa: 341C1
-# Fisier: build.c
+# Fisier: Makefile
 
 all: clean build
 

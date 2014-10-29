@@ -15,4 +15,62 @@ Caracteristici Hardware:
 
 Caracteristici SoftWare:
 	- Distribuite: Elementary OS 64-bit
-	- Versiune GCC: 4.6.3 ????
+	- Versiune GCC: 4.6.3
+
+Timpi:
+	- test1: S~=1.9
+		real	0m0.666s
+		user	0m0.658s
+		sys	0m0.001s
+
+		real	0m0.258s
+		user	0m0.506s
+		sys	0m0.004s
+
+		real	0m0.136s
+		user	0m0.529s
+		sys	0m0.003s
+
+		real	0m0.092s
+		user	0m0.700s
+		sys	0m0.002s
+	- test2: S~=1.9
+		real	0m0.666s
+		user	0m0.650s
+		sys	0m0.003s
+
+		real	0m0.257s
+		user	0m0.502s
+		sys	0m0.007s
+
+		real	0m0.142s
+		user	0m0.549s
+		sys	0m0.007s
+
+		real	0m0.096s
+		user	0m0.738s
+		sys	0m0.006s
+
+Implementare:
+	Voi descrie pe scurt pasii prin care am trecut si optimizarile facute:
+		- initializari/alocari citire din fisier. Alocarea matricei a fost facuta in
+		zona continua de memorie pentru viteze mai bune. Totodata am alocat o matrice
+		cu o dimensiune mai mare cu 1 decat cea citita din fisier atat pe latime cat si pe lungime pentru a o borda cu elemente corespunzator.
+		- la fiecare pas:
+			- updatare margini in cazul in care era toroid
+			- parcurgere matrice in blocuri pentru a reduce rata de cache misse
+			- apelare functie mutate care:
+				- numara vecinii
+				- aplica regulile game of life
+				- completeaza viitoarea generatie (matricea B)
+			- se face swap la cele doua matrice corespunzatoare celor doua generatii
+		- la final se calculeaza cel mai mic patrat/dreptunghi care contine INDIVIZI
+		- afisare in fisier
+
+Observatii imbunatatiri:
+	- paralelizari cu pragma: alocare matrice, parcurgere matrice, updatare margini,
+	calcul patrat minim.
+	- folosire schedule(static) - rezultate cele mai bune
+	- alocare matrice in zona continua de memorie
+	- parcurgerea matricei in blocuri pentru a reduce rata de cache miss
+	- accesarea elementelor matricei prin structuri de pointeri mai putin complexe (se evita translatarea din forma matrice[i][j] la pointer in memorie)
