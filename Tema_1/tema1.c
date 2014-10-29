@@ -131,6 +131,8 @@ int main(int argc, char **argv){
 		N--;
 
 	}
+	W_harta = 1;
+	H_harta = 1;
 
 	/* Recalculam W_harta si H_harta */
 	#pragma omp parallel for private(i,j) shared(matA,W_harta,H_harta) schedule(static)
