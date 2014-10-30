@@ -27,7 +27,7 @@ int main(int argc, char **argv){
 	unsigned int W_harta, H_harta,	/* Lungime si latime harta */
 				 W, H,				/* Lungime si latime harta simulata */
 					N;				/* Number of steps */
-	register unsigned int			/* Aux vars */
+	register unsigned int					/* Aux vars */
 				 i, j,
 				 varaux_h,varaux_w,
 				 k,l;
@@ -63,9 +63,14 @@ int main(int argc, char **argv){
 	fscanf(f, "%u", &H_harta);
 	fscanf(f, "%u", &W);
 	fscanf(f, "%u", &H);
-	// int chunk = W/atoi(argv[1]);
+
 	if(W_harta > W) W_harta = W;
 	if(H_harta > H) H_harta = H;
+
+
+	varaux_h = H/atoi(argv[1]);
+	varaux_w = W/atoi(argv[1]);
+
 
 	/* Alocam matrice initiale bordate cu 0*/
 	matA = allocMat(W+2, H+2);
@@ -100,17 +105,15 @@ int main(int argc, char **argv){
 			update_toroid(matA, matA, W, H);
 		}
 
-		varaux_h = H/atoi(argv[1]);
-		varaux_w = W/atoi(argv[1]);
 
 		/* Parcurgem matricea pe blocuri de W/n_threads H/n_threads
 		 * pentru a reduce din cache miss-uri */
-		#pragma omp parallel for private(i,j,k,l) schedule(static)
+		#pragma omp parallel for collapse(2) private(i,j,k,l) schedule(static)
 		for( k = 0 ; k < varaux_h ; ++k)
 			for( l = 0 ; l < varaux_w ; ++l)
 				for(i = 1 + k *  H / varaux_h; i < (k+1) *  H / varaux_h + 1 ; ++i)
 					for(j = 1 + l * W / varaux_w ; j < (l+1) * W / varaux_w + 1 ; ++j)
-						mutate(matA, matB, i, j, W+2, H+2);
+						mutate(matA, matB, W+1-i, W+1-j, W+2, H+2);
 
 		/* Swap the 2 matrices */
 		auxmat = matA;

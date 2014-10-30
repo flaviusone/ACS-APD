@@ -4,19 +4,6 @@ Grupa: 341C1
 File: Readme
 */
 
-Caracteristici Hardware:
-	- Intel Core i3-370M
-	- # of Cores	2
-	- # of Threads	4
-	- Clock Speed	2.4 GHz
-	- Intel® Smart Cache	3 MB
-	- DMI	2.5 GT/s
-	- Instruction Set	64-bit
-
-Caracteristici SoftWare:
-	- Distribuite: Elementary OS 64-bit
-	- Versiune GCC: 4.6.3
-
 Timpi:
 	- test1: S~=1.9
 		real	0m0.666s
@@ -70,7 +57,7 @@ Implementare:
 Observatii imbunatatiri:
 	- paralelizari cu pragma: alocare matrice, parcurgere matrice, updatare margini,
 	calcul patrat minim.
-	- folosire schedule(static) - rezultate cele mai bune
+	- folosire schedule(static&auto) - rezultate cele mai bune
 	- alocare matrice in zona continua de memorie
 	- parcurgerea matricei in blocuri pentru a reduce rata de cache miss
 	- accesarea elementelor matricei prin structuri de pointeri mai putin complexe (se evita translatarea din forma matrice[i][j] la pointer in memorie)

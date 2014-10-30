@@ -58,16 +58,11 @@ static unsigned int mutate(unsigned short** matA, unsigned short** matB,
 
 	/* Count vecini */
 	unsigned short* pij = &matA[i][j];
-	vecini += *(pij-W-1) + *(pij-W) + *(pij-W+1) ;
+	vecini += *(pij+W-1) + *(pij+W) + *(pij+W+1) ;
 	vecini += *(pij-1) + *(pij+1);
+	vecini += *(pij-W-1) + *(pij-W) + *(pij-W+1) ;
 
-
-	/* Incercam sa evitam op suplimentare daca deja s-au gasit destui vecini */
-	if( vecini < 4){
-		vecini += *(pij+W-1) + *(pij+W) + *(pij+W+1) ;
-	}
-
-	if (matA[i][j] == GOL)
+	if (*pij == GOL)
 	{
 		if (vecini == 3)
 		{
