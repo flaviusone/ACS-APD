@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -54,18 +55,28 @@ public class MapReducer {
 		
 	}
 	public static void Map_Stage(){
-		
+		File f;
 		/* Initializare Hash de Rezultate */
-		
+		MapResults = new ConcurrentHashMap<String, HashMap<String,Integer>>();
 		
 		/* Crearea workpool-ului */
-		ExecutorService executorService = Executors.newFixedThreadPool(NT);
+		ExecutorService map_workpool = Executors.newFixedThreadPool(NT);
 		
 		/* Generarea de taskuri */
-		
-		
+		for(String fis : DOCS){
+			System.out.println(fis);
+			f = new File(fis);
+			for (int i = 0; i < f.length() / D; i++) {
+				map_workpool.submit(new MapService(fis, i*D, D, MapResults));
+			}
+		}
 
-		executorService.shutdown();
+		map_workpool.shutdown();
+		while(true){
+		if(map_workpool.isTerminated())
+			break;
+		}
+		System.out.println(MapResults.toString());
 		
 	}
 	public static void Reduce_Stage(){
