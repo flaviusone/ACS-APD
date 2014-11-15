@@ -10,9 +10,9 @@ public class CompareService implements Runnable {
 	String fis_b;
 	HashMap<String, Integer> hash_a;
 	HashMap<String, Integer> hash_b;
-	Map<Float, String> results_map;
-	
-	public CompareService(String fis_a, String fis_b,HashMap<String, Integer> hash_a, HashMap<String, Integer> hash_b, Map<Float, String> results_map2){
+	Map<Double, String> results_map;
+	Double sum = (double) 0;
+	public CompareService(String fis_a, String fis_b,HashMap<String, Integer> hash_a, HashMap<String, Integer> hash_b, Map<Double, String> results_map2){
 		this.fis_a = fis_a;
 		this.fis_b = fis_b;
 		this.hash_a = hash_a;
@@ -23,9 +23,11 @@ public class CompareService implements Runnable {
 	@Override
 	public void run() {
 //		System.out.printf("Compar %s cu %s\n", fis_a, fis_b);
-//		results_map.put((float) Math.random(), fis_a+fis_b);
+//		results_map.put((Double) Math.random(), fis_a+fis_b);
 		int nr_cuv_a = 0;
 		int nr_cuv_b = 0;
+		
+		
 		for(Integer x : hash_a.values()){
 			nr_cuv_a += x;
 		}
@@ -36,6 +38,29 @@ public class CompareService implements Runnable {
 		/* Intersectam cuvintele din a si b */
 		Set<String> sa =  new HashSet<String>(hash_a.keySet());
 		Set<String> sb = new HashSet<String>(hash_b.keySet());
-		sb.addAll(sa);
+		sa.addAll(sb);
+		
+		/* Calculam similaritate */
+		Double frec_a = new Double(0);
+		Double frec_b = new Double(0);
+		
+		for(String cuvant : sa){
+			
+			frec_a  = frecventa(cuvant, hash_a, nr_cuv_a);
+			frec_b  = frecventa(cuvant, hash_b, nr_cuv_b);
+			sum += frec_a * frec_b;
+		}
+		
+		
+		results_map.put(sum, fis_a+";"+fis_b+";");
+	}
+	
+	Double frecventa(String cuvant, HashMap<String, Integer> hash, int nr_cuv_doc){
+		Double frecventa = new Double(0);
+		Integer aparitii_cuvant = hash.get(cuvant);
+		if (aparitii_cuvant == null) 
+			aparitii_cuvant = 0;
+		frecventa = ((double) aparitii_cuvant /(double) nr_cuv_doc) * 100;
+		return frecventa;
 	}
 }

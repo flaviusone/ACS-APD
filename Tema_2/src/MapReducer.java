@@ -17,7 +17,7 @@ public class MapReducer {
 	static int 	NT,	/* Numar threads */
 					D,	/* Dimensiune fragmente */
 					ND;	/* Numar documente analizate */
-	static float 	X;	/* Prag de similaritate */
+	static Double 	X;	/* Prag de similaritate */
 			
 	static ArrayList<String> DOCS;
 	private static BufferedReader in;
@@ -27,7 +27,7 @@ public class MapReducer {
 	 * Hash ce contine rezultatele operatiilor de Map
 	 */
 	static ConcurrentHashMap<String,ArrayList<HashMap<String, Integer>>> MapResults;
-	static Map<Float, String> results_map;
+	static Map<Double, String> results_map;
 	
 	public static void main(String[] args) throws NumberFormatException, IOException {
 
@@ -37,7 +37,7 @@ public class MapReducer {
 		
 		/* Citire date din fisier */
 		D = Integer.parseInt(in.readLine());
-		X = Float.parseFloat(in.readLine());
+		X = Double.parseDouble(in.readLine());
 		ND = Integer.parseInt(in.readLine());
 		DOCS = new ArrayList<String>();
 		for(int i=0;i<ND;i++){
@@ -55,9 +55,9 @@ public class MapReducer {
 		System.out.println("Compare Stage Done");
 //		System.out.println(results_map.toString());
 //		System.out.println(results_map.keySet().toString());
-//		for(Map.Entry<Float,String> entry : results_map.entrySet()){
-//			System.out.println(entry.toString());
-//		}
+		for(Map.Entry<Double,String> entry : results_map.entrySet()){
+			System.out.println(entry.toString());
+		}
 		
 		/****************************************************/
 		
@@ -92,7 +92,7 @@ public class MapReducer {
 	}
 	public static void Reduce_Stage(){
 		/* Creeam hash de rezultate */
-		results_map = Collections.synchronizedMap(new TreeMap<Float, String>());  
+		results_map = Collections.synchronizedMap(new TreeMap<Double, String>());  
 		
 		/* Crearea workpool-ului */
 		ExecutorService reduce_workpool = Executors.newFixedThreadPool(NT);
