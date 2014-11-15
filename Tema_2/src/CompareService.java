@@ -47,12 +47,14 @@ public class CompareService implements Runnable {
 		for(String cuvant : sa){
 			
 			frec_a  = frecventa(cuvant, hash_a, nr_cuv_a);
+			frec_a = frec_a * 1000 / 1000;
 			frec_b  = frecventa(cuvant, hash_b, nr_cuv_b);
+			frec_b = frec_b * 1000 / 1000;
 			sum += frec_a * frec_b;
 		}
 		
 		
-		results_map.put(sum, fis_a+";"+fis_b+";");
+		results_map.put(sum/(double)100, fis_b+";"+fis_a+";");
 	}
 	
 	Double frecventa(String cuvant, HashMap<String, Integer> hash, int nr_cuv_doc){

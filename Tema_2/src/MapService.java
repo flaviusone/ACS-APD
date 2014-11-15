@@ -62,7 +62,7 @@ public class MapService implements Runnable {
 		/* Numarare aparitii */
 		StringTokenizer st = new StringTokenizer(fragment_final, separator);
 		while(st.hasMoreTokens()){
-			String cuvant =st.nextToken().toLowerCase();
+			String cuvant =st.nextToken();
 			
 			/* Adaugare in hash */
 			if(result.get(cuvant) == null){
