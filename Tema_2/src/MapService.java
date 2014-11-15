@@ -24,11 +24,16 @@ public class MapService implements Runnable {
 	
 	@Override
 	public void run() {
+		RandomAccessFile file = null ;
 		byte[] bytes = null;
 		/* Citire fragment din fisier */
 		try {
 			/* Descidem fisier si seek la offset */
-			RandomAccessFile file = new RandomAccessFile(nume_fis, "r");
+			try {
+				file = new RandomAccessFile(nume_fis, "r");
+			} catch (Exception e) {
+				System.out.println(e);
+			}			
 			file.seek(offset);	
 			/* Citire din fisier fragment */
 			bytes = new byte[D+100];

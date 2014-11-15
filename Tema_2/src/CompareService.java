@@ -22,8 +22,6 @@ public class CompareService implements Runnable {
 
 	@Override
 	public void run() {
-//		System.out.printf("Compar %s cu %s\n", fis_a, fis_b);
-//		results_map.put((Double) Math.random(), fis_a+fis_b);
 		int nr_cuv_a = 0;
 		int nr_cuv_b = 0;
 		
