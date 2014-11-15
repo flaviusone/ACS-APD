@@ -68,7 +68,6 @@ public class MapService implements Runnable {
 		StringTokenizer st = new StringTokenizer(fragment_final, separator);
 		while(st.hasMoreTokens()){
 			String cuvant =st.nextToken();
-			
 			/* Adaugare in hash */
 			if(result.get(cuvant) == null){
 				result.put(cuvant, 1);
@@ -89,7 +88,6 @@ public class MapService implements Runnable {
 			}
 			MapResults.put(nume_fis, list);
 		}
-		
 	}
 	
 }
