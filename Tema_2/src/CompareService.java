@@ -53,7 +53,6 @@ public class CompareService implements Runnable {
 			sum += frec_a * frec_b;
 		}
 		
-		
 		results_map.put(sum/(double)100, fis_b+";"+fis_a+";");
 	}
 	

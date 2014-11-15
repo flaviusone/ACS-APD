@@ -1,7 +1,10 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +24,7 @@ public class MapReducer {
 			
 	static ArrayList<String> DOCS;
 	private static BufferedReader in;
+	private static BufferedWriter out;
 	
 	/* 
 	 * Hash de forma <Nume_fisier : Hash<Cuvant:Nr_ap>>
@@ -53,15 +57,23 @@ public class MapReducer {
 		System.out.println("Reduce Stage Done");
 		Compare_Stage();
 		System.out.println("Compare Stage Done");
-//		System.out.println(results_map.toString());
-//		System.out.println(results_map.keySet().toString());
+		ArrayList<String> outputs = new ArrayList<String>();
 		for(Map.Entry<Double,String> entry : results_map.entrySet()){
-			System.out.println(entry.toString());
+			if(entry.getKey() > X)
+				outputs.add(entry.getValue()+new DecimalFormat("0.0000").format(entry.getKey()).toString());
 		}
 		
 		/****************************************************/
 		
 		/* Scriere date in fisierul de output */
+		
+		out = new BufferedWriter (new FileWriter(args[2]));
+		Collections.reverse(outputs);
+		for(String x : outputs){
+			out.write(x);
+			out.write("\n");
+		}
+		out.close();
 		
 	}
 	public static void Map_Stage(){
@@ -125,7 +137,6 @@ public class MapReducer {
 				if(!fis_a.equals(fis_b)){
 					hash_a = MapResults.get(fis_a).get(0);
 					hash_b = MapResults.get(fis_b).get(0);
-//					System.out.println("Submitting "+fis_a + " " + fis_b);
 					compare_workpool.submit(new CompareService(fis_a, fis_b, hash_a, hash_b, results_map));
 				}
 			}
