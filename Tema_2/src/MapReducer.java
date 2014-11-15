@@ -37,6 +37,7 @@ public class MapReducer {
 
 		/* Citire NT si nume fisier */
 		NT = Integer.parseInt(args[0]);
+//		NT = 1;
 		in = new BufferedReader(new FileReader(args[1]));
 		
 		/* Citire date din fisier */
@@ -71,6 +72,7 @@ public class MapReducer {
 		Collections.reverse(outputs);
 		for(String x : outputs){
 			out.write(x);
+			System.out.println(x);
 			out.write("\n");
 		}
 		out.close();
@@ -131,17 +133,18 @@ public class MapReducer {
 		
 		/* Crearea workpool-ului */
 		ExecutorService compare_workpool = Executors.newFixedThreadPool(NT);
-		
-		for(String fis_a : DOCS){
-			for(String fis_b : DOCS){
+		for (int i = 0; i < DOCS.size()-1; i++) {
+			for (int j = i+1; j < DOCS.size(); j++){
+				String fis_a = DOCS.get(i);
+				String fis_b = DOCS.get(j);
 				if(!fis_a.equals(fis_b)){
+					System.out.println(fis_a+"--"+fis_b);
 					hash_a = MapResults.get(fis_a).get(0);
 					hash_b = MapResults.get(fis_b).get(0);
 					compare_workpool.submit(new CompareService(fis_a, fis_b, hash_a, hash_b, results_map));
 				}
 			}
 		}
-		
 		compare_workpool.shutdown();
 		
 		/* De testat daca poate fi scos asta (e ca un barrier)*/
