@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,7 +27,7 @@ public class MapReducer {
 	 * Hash ce contine rezultatele operatiilor de Map
 	 */
 	static ConcurrentHashMap<String,ArrayList<HashMap<String, Integer>>> MapResults;
-	
+	static Map<Float, String> results_map;
 	
 	public static void main(String[] args) throws NumberFormatException, IOException {
 
@@ -49,11 +51,13 @@ public class MapReducer {
 		System.out.println("Map Stage Done");
 		Reduce_Stage();
 		System.out.println("Reduce Stage Done");
-//		System.out.println(MapResults.get("1mb-1").toString());
-//		System.out.println(MapResults.get("1mb-2").size());
-//		System.out.println(MapResults.get("1mb-3").size());
-//		System.out.println(MapResults.get("1mb-4").size());
 		Compare_Stage();
+		System.out.println("Compare Stage Done");
+//		System.out.println(results_map.toString());
+//		System.out.println(results_map.keySet().toString());
+//		for(Map.Entry<Float,String> entry : results_map.entrySet()){
+//			System.out.println(entry.toString());
+//		}
 		
 		/****************************************************/
 		
@@ -84,10 +88,12 @@ public class MapReducer {
 		} catch (InterruptedException e) {
 			System.out.println("Error " + e);
 		}
-//		System.out.println(MapResults.get("1mb-2").size()*D);
 		
 	}
 	public static void Reduce_Stage(){
+		/* Creeam hash de rezultate */
+		results_map = Collections.synchronizedMap(new TreeMap<Float, String>());  
+		
 		/* Crearea workpool-ului */
 		ExecutorService reduce_workpool = Executors.newFixedThreadPool(NT);
 		
@@ -108,9 +114,22 @@ public class MapReducer {
 		
 	}
 	public static void Compare_Stage(){
+		HashMap<String, Integer> hash_a;
+		HashMap<String, Integer> hash_b;
+		
 		/* Crearea workpool-ului */
 		ExecutorService compare_workpool = Executors.newFixedThreadPool(NT);
 		
+		for(String fis_a : DOCS){
+			for(String fis_b : DOCS){
+				if(!fis_a.equals(fis_b)){
+					hash_a = MapResults.get(fis_a).get(0);
+					hash_b = MapResults.get(fis_b).get(0);
+//					System.out.println("Submitting "+fis_a + " " + fis_b);
+					compare_workpool.submit(new CompareService(fis_a, fis_b, hash_a, hash_b, results_map));
+				}
+			}
+		}
 		
 		compare_workpool.shutdown();
 		
