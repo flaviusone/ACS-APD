@@ -34,7 +34,10 @@ public class MapService implements Runnable {
 			} catch (Exception e) {
 				System.out.println(e);
 			}			
-			file.seek(offset);	
+			if(offset == 0)
+				file.seek(offset);
+			else
+				file.seek(offset-1);
 			/* Citire din fisier fragment */
 			bytes = new byte[D+100];
 			file.read(bytes);
@@ -63,7 +66,6 @@ public class MapService implements Runnable {
 		counter_end -= counter_start;
 		/* Recream fragment final */
 		String fragment_final = new String(bytes, counter_start, counter_end);
-
 		/* Numarare aparitii */
 		StringTokenizer st = new StringTokenizer(fragment_final, separator);
 		while(st.hasMoreTokens()){
@@ -81,6 +83,7 @@ public class MapService implements Runnable {
 			if(list == null)
 			{
 				list = new ArrayList<HashMap<String,Integer>>();
+				list.add(result);
 			}
 			else
 			{

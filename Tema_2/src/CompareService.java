@@ -13,10 +13,10 @@ public class CompareService implements Runnable {
 	String fis_b;
 	HashMap<String, Integer> hash_a;
 	HashMap<String, Integer> hash_b;
-	Map<Double, String> results_map;
-	Double sum = (double) 0;
+	Map<BigDecimal, String> results_map;
+	Float sum = (float) 0;
 	
-	public CompareService(String fis_a, String fis_b,HashMap<String, Integer> hash_a, HashMap<String, Integer> hash_b, Map<Double, String> results_map2){
+	public CompareService(String fis_a, String fis_b,HashMap<String, Integer> hash_a, HashMap<String, Integer> hash_b, Map<BigDecimal, String> results_map2){
 		this.fis_a = fis_a;
 		this.fis_b = fis_b;
 		this.hash_a = hash_a;
@@ -43,26 +43,53 @@ public class CompareService implements Runnable {
 		sa.addAll(sb);
 		
 		/* Calculam similaritate */
-		Double frec_a = new Double(0);
-		Double frec_b = new Double(0);
+		Float frec_a = new Float(0);
+		Float frec_b = new Float(0);
 		
 		BigDecimal frec_a_pr = new BigDecimal("0");
 		BigDecimal frec_b_pr = new BigDecimal("0");
 		
-		sum = (double) 0;
+		sum = (float) 0;
+		long temp_frec_a = 0;
+		long temp_frec_b = 0;
+//		System.out.println(sum_precise);
 		for(String cuvant : sa){
 			frec_a  = frecventa(cuvant, hash_a, nr_cuv_a);
+//			temp_frec_a =(long) (frec_a * 10000);
+//			frec_a = (Float) temp_frec / 10000;
 			frec_b  = frecventa(cuvant, hash_b, nr_cuv_b);
+//			temp_frec_b =(int) (frec_b * 10000);
+//			frec_b = (Float) temp_frec / 10000;
+//			sum += (float)temp_frec_a * temp_frec_b/(float)100000000;
 			sum += frec_a * frec_b;
 			
-			frec_a_pr  = frecventa_precise(cuvant, hash_a, nr_cuv_a);
-			frec_b_pr  = frecventa_precise(cuvant, hash_a, nr_cuv_a);
-			sum_precise = sum_precise.add(frec_a_pr.multiply(frec_b_pr));
+			try {
+//				frec_a  = frecventa(cuvant, hash_a, nr_cuv_a);
+				frec_a_pr  = frecventa_precise(cuvant, hash_a, nr_cuv_a);
+//				frec_a_pr = frec_a_pr.setScale(5, RoundingMode.FLOOR);
+
+				frec_b_pr  = frecventa_precise(cuvant, hash_b, nr_cuv_b);
+//				frec_b_pr = frec_b_pr.setScale(5, RoundingMode.FLOOR);
+				
+				BigDecimal partial_sum = frec_a_pr.multiply(frec_b_pr);
+//				System.out.println(partial_sum);
+//				sum += partial_sum.floatValue();
+//				if(partial_sum.floatValue() > 15){
+//					System.out.println(frec_b_pr);
+//					Thread.sleep(10000);
+//					return;
+//				}
+				sum_precise = sum_precise.add(partial_sum);
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+//			System.out.println(sum + "--" +sum_precise);
+			
 			
 //			sum_precise.setScale(4, RoundingMode.FLOOR);
-			System.out.print(frec_a_pr.multiply(frec_b_pr));
+//			System.out.print(frec_a_pr.multiply(frec_b_pr));
 //			System.out.print(sum_precise.add(frec_a_pr.multiply(frec_b_pr)));
-			System.out.println(" "+new DecimalFormat("0.0000").format(frec_a*frec_b).toString());
+//			System.out.println(" "+frec_a*frec_b);
 			
 		}
 //		System.out.println(sum+"--"+sum_precise);
@@ -72,31 +99,41 @@ public class CompareService implements Runnable {
 		}else{
 			files = fis_b + ";" + fis_a + ";";
 		}
-		sum_precise = sum_precise.divide(new BigDecimal(100), 6, RoundingMode.FLOOR);
-//		results_map.put(sum_precise.doubleValue(), files);
-		results_map.put(sum/(double)100, files);
+
+		sum_precise = sum_precise.divide(new BigDecimal("100"), 4, RoundingMode.FLOOR);
+//		System.out.println(sum_precise+" "+sum_precise.floatValue());
+//		System.out.println();
+//		System.out.println(sum_precise);
+		System.out.println(fis_a+";"+fis_b+" "+sum_precise);
+		try {
+			results_map.put(sum_precise, files);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		
+//		results_map.put(sum_precise.floatValue(), files);
+//		results_map.put(sum/(float)100, files);
 	}
 	
-	Double frecventa(String cuvant, HashMap<String, Integer> hash, int nr_cuv_doc){
-		Double frecventa = new Double(0);
+	Float frecventa(String cuvant, HashMap<String, Integer> hash, int nr_cuv_doc){
+		Float frecventa = new Float(0);
 		Integer aparitii_cuvant = hash.get(cuvant);
 		if (aparitii_cuvant == null) 
 			aparitii_cuvant = 0;
-		frecventa = ((double) aparitii_cuvant /(double) nr_cuv_doc) * 100;
-
-//		BigDecimal demo = frecventa_precise(cuvant, hash, nr_cuv_doc);
-		
+//		System.out.println(aparitii_cuvant);
+		frecventa = ((float) aparitii_cuvant /(float) nr_cuv_doc) * 100;
 		return frecventa;
 	}
 	BigDecimal frecventa_precise(String cuvant, HashMap<String, Integer> hash, int nr_cuv_doc){
 		BigDecimal frecventa = null;
 		Integer aparitii_cuvant = hash.get(cuvant);
+//		System.out.println();
 		if (aparitii_cuvant == null) 
 			aparitii_cuvant = 0;
 		BigDecimal aparitii = new BigDecimal(aparitii_cuvant.toString());
 		BigDecimal nr_cuv = new BigDecimal(String.valueOf(nr_cuv_doc));
-		frecventa = aparitii.divide(nr_cuv , 10, RoundingMode.FLOOR);
-		frecventa = frecventa.multiply(new BigDecimal(100));
+		frecventa = aparitii.divide(nr_cuv , 8, RoundingMode.FLOOR).multiply(new BigDecimal("100"));
+
 		return frecventa;	
 	}
 }

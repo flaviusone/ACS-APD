@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -15,12 +18,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import sun.org.mozilla.javascript.ast.AstRoot;
+
 
 public class MapReducer {
 	static int 	NT,	/* Numar threads */
 					D,	/* Dimensiune fragmente */
 					ND;	/* Numar documente analizate */
-	static Double 	X;	/* Prag de similaritate */
+	static Float 	X;	/* Prag de similaritate */
 			
 	static ArrayList<String> DOCS;
 	private static BufferedReader in;
@@ -31,18 +36,18 @@ public class MapReducer {
 	 * Hash ce contine rezultatele operatiilor de Map
 	 */
 	static ConcurrentHashMap<String,ArrayList<HashMap<String, Integer>>> MapResults;
-	static Map<Double, String> results_map;
+	static Map<BigDecimal, String> results_map;
 	
 	public static void main(String[] args) throws NumberFormatException, IOException {
 
 		/* Citire NT si nume fisier */
 		NT = Integer.parseInt(args[0]);
-		NT = 1;
+//		NT = 1;
 		in = new BufferedReader(new FileReader(args[1]));
 		
 		/* Citire date din fisier */
 		D = Integer.parseInt(in.readLine());
-		X = Double.parseDouble(in.readLine());
+		X = Float.parseFloat(in.readLine());
 		ND = Integer.parseInt(in.readLine());
 		DOCS = new ArrayList<String>();
 		for(int i=0;i<ND;i++){
@@ -59,10 +64,15 @@ public class MapReducer {
 		Compare_Stage();
 		System.out.println("Compare Stage Done");
 		ArrayList<String> outputs = new ArrayList<String>();
-		for(Map.Entry<Double,String> entry : results_map.entrySet()){
-			if(entry.getKey() > X)
-				outputs.add(entry.getValue()+new DecimalFormat("0.0000").format(entry.getKey()).toString());
+		for(Map.Entry<BigDecimal,String> entry : results_map.entrySet()){
+			if(entry.getKey().compareTo(new BigDecimal(X)) > 0){
+//				outputs.add(entry.getValue()+new DecimalFormat("0.0000").format(Math.floor(entry.getKey() * 10000) / 10000).toString());
+				outputs.add(entry.getValue()+entry.getKey().toString());
+				
+			}			
 		}
+		
+		
 		
 		/****************************************************/
 		
@@ -102,11 +112,10 @@ public class MapReducer {
 		} catch (InterruptedException e) {
 			System.out.println("Error " + e);
 		}
-		
 	}
 	public static void Reduce_Stage(){
 		/* Creeam hash de rezultate */
-		results_map = Collections.synchronizedMap(new TreeMap<Double, String>());  
+		results_map = Collections.synchronizedMap(new TreeMap<BigDecimal, String>());  
 		
 		/* Crearea workpool-ului */
 		ExecutorService reduce_workpool = Executors.newFixedThreadPool(NT);
@@ -116,7 +125,6 @@ public class MapReducer {
 			ArrayList<HashMap<String, Integer>> list = MapResults.get(fis);
 			reduce_workpool.submit(new ReduceService(fis, list));
 		}
-		
 		reduce_workpool.shutdown();
 		
 		/* De testat daca poate fi scos asta (e ca un barrier)*/
@@ -153,4 +161,5 @@ public class MapReducer {
 			System.out.println("Error " + e);
 		}
 	}
+		
 }
