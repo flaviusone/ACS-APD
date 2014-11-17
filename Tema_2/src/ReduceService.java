@@ -1,14 +1,14 @@
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.HashMap;
 
 public class ReduceService implements Runnable{
 	
-	ArrayList<HashMap<String, Integer>> lista_map;
+	LinkedList<HashMap<String, Integer>> lista_map;
 	String nume_fis;
 	HashMap<String, Integer> a; 
 	HashMap<String, Integer> b;
 
-	public ReduceService(String nume_fis, ArrayList<HashMap<String, Integer>> list){
+	public ReduceService(String nume_fis, LinkedList<HashMap<String, Integer>> list){
 		this.lista_map = list;
 		this.nume_fis = nume_fis;
 	}

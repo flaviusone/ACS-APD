@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class MapReducer {
 	 * Hash de forma <Nume_fisier : Hash<Cuvant:Nr_ap>>
 	 * Hash ce contine rezultatele operatiilor de Map
 	 */
-	static HashMap<String,ArrayList<HashMap<String, Integer>>> MapResults;
+	static HashMap<String,LinkedList<HashMap<String, Integer>>> MapResults;
 	static Map<String, BigDecimal> results_map;
 	
 	public static void main(String[] args) throws NumberFormatException, IOException {
@@ -106,7 +107,7 @@ public class MapReducer {
 	public static void Map_Stage(){
 		File f;
 		/* Initializare Hash de Rezultate */
-		MapResults = new HashMap<String,ArrayList<HashMap<String, Integer>>>();
+		MapResults = new HashMap<String,LinkedList<HashMap<String, Integer>>>();
 		
 		/* Crearea workpool-ului */
 		ExecutorService map_workpool = Executors.newFixedThreadPool(NT);
@@ -138,7 +139,7 @@ public class MapReducer {
 		
 		/* Generam taskuri reduce */
 		for(String fis : DOCS){
-			ArrayList<HashMap<String, Integer>> list = MapResults.get(fis);
+			LinkedList<HashMap<String, Integer>> list = MapResults.get(fis);
 			reduce_workpool.submit(new ReduceService(fis, list));
 		}
 		reduce_workpool.shutdown();

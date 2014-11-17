@@ -1,13 +1,13 @@
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 public class MapService implements Runnable {
-	HashMap<String,ArrayList<HashMap<String, Integer>>> MapResults;
+	HashMap<String,LinkedList<HashMap<String, Integer>>> MapResults;
 	HashMap<String, Integer> result;
 	String nume_fis;
 	long offset;
@@ -15,7 +15,7 @@ public class MapService implements Runnable {
 	String separator = " '`,;:/?~.><~`[]{}()!@#$%^&-+=*| \t\n\"\\";
 	
 	public MapService(String nume_fis, long offset, int D, 
-		HashMap<String,ArrayList<HashMap<String, Integer>>> MapResults) {
+		HashMap<String,LinkedList<HashMap<String, Integer>>> MapResults) {
 		this.nume_fis = nume_fis;
 		this.offset = offset;
 		this.D = D;
@@ -92,10 +92,10 @@ public class MapService implements Runnable {
 		
 		/* Adaugare rezultat la hash */
 		synchronized (MapResults) {
-			ArrayList<HashMap<String, Integer>> list = MapResults.get(nume_fis);
+			LinkedList<HashMap<String, Integer>> list = MapResults.get(nume_fis);
 			if(list == null)
 			{
-				list = new ArrayList<HashMap<String,Integer>>();
+				list = new LinkedList<HashMap<String,Integer>>();
 				list.add(result);
 			}
 			else
