@@ -15,12 +15,10 @@ public class ReduceService implements Runnable{
 
 	@Override
 	public void run() {
-		
 		while(lista_map.size()>1){
 
 			a = lista_map.remove(0);
 			b = lista_map.remove(0);
-			
 			for(String cuv_a : a.keySet()){
 				Integer value = b.get(cuv_a);
 				if(value == null)
@@ -35,7 +33,6 @@ public class ReduceService implements Runnable{
 			
 			lista_map.add(b);
 		}
-
 	}
 
 }

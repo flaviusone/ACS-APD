@@ -5,8 +5,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,8 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import sun.org.mozilla.javascript.ast.AstRoot;
 
 
 public class MapReducer {
@@ -36,7 +32,7 @@ public class MapReducer {
 	 * Hash ce contine rezultatele operatiilor de Map
 	 */
 	static ConcurrentHashMap<String,ArrayList<HashMap<String, Integer>>> MapResults;
-	static Map<BigDecimal, String> results_map;
+	static Map<String, BigDecimal> results_map;
 	
 	public static void main(String[] args) throws NumberFormatException, IOException {
 
@@ -56,34 +52,53 @@ public class MapReducer {
 		in.close();	
 		/****************************************************/
 		
-		/* Solve */
+		long startTime = System.currentTimeMillis();
+
 		Map_Stage();
-		System.out.println("Map Stage Done");
+
+		long endTime = System.currentTimeMillis();
+
+		System.out.println("Map took " + (endTime - startTime) + " milliseconds");
+		
+		startTime = System.currentTimeMillis();
+
 		Reduce_Stage();
-		System.out.println("Reduce Stage Done");
+
+		endTime = System.currentTimeMillis();
+
+		System.out.println("Reduce took " + (endTime - startTime) + " milliseconds");
+		
+		startTime = System.currentTimeMillis();
+
 		Compare_Stage();
-		System.out.println("Compare Stage Done");
-		ArrayList<String> outputs = new ArrayList<String>();
-		for(Map.Entry<BigDecimal,String> entry : results_map.entrySet()){
-			if(entry.getKey().compareTo(new BigDecimal(X)) > 0){
-//				outputs.add(entry.getValue()+new DecimalFormat("0.0000").format(Math.floor(entry.getKey() * 10000) / 10000).toString());
-				outputs.add(entry.getValue()+entry.getKey().toString());
-				
-			}			
-		}
+
+		endTime = System.currentTimeMillis();
+
+		System.out.println("Compare took " + (endTime - startTime) + " milliseconds");
 		
-		
+		/* Solve */
+//		Map_Stage();
+//		System.out.println("Map Stage Done");
+//		Reduce_Stage();
+//		System.out.println("Reduce Stage Done");
+//		Compare_Stage();
+//		System.out.println("Compare Stage Done");
 		
 		/****************************************************/
 		
 		/* Scriere date in fisierul de output */
 		
+		ValueComparator bvc =  new ValueComparator(results_map);
+		TreeMap<String,BigDecimal> sorted_map = new TreeMap<String,BigDecimal>(bvc);
+		sorted_map.putAll(results_map);
+		
 		out = new BufferedWriter (new FileWriter(args[2]));
-		Collections.reverse(outputs);
-		for(String x : outputs){
-			out.write(x);
-			System.out.println(x);
-			out.write("\n");
+		for(Map.Entry<String, BigDecimal> entry : sorted_map.entrySet()){
+			if(entry.getValue().compareTo(new BigDecimal(X)) > 0){
+				System.out.println(entry.getKey().toString()+entry.getValue());
+				out.write(entry.getKey().toString()+entry.getValue());
+				out.write("\n");
+			}
 		}
 		out.close();
 		
@@ -115,7 +130,8 @@ public class MapReducer {
 	}
 	public static void Reduce_Stage(){
 		/* Creeam hash de rezultate */
-		results_map = Collections.synchronizedMap(new TreeMap<BigDecimal, String>());  
+		
+		results_map = Collections.synchronizedMap(new HashMap<String,BigDecimal>());  
 		
 		/* Crearea workpool-ului */
 		ExecutorService reduce_workpool = Executors.newFixedThreadPool(NT);
@@ -162,4 +178,21 @@ public class MapReducer {
 		}
 	}
 		
+}
+
+class ValueComparator implements Comparator<String> {
+
+    Map<String, BigDecimal> base;
+    public ValueComparator(Map<String, BigDecimal> base) {
+        this.base = base;
+    }
+
+    // Note: this comparator imposes orderings that are inconsistent with equals.    
+    public int compare(String a, String b) {
+        if (base.get(a).compareTo(base.get(b)) > 0) {
+            return -1;
+        } else {
+            return 1;
+        } // returning 0 would merge keys
+    }
 }
