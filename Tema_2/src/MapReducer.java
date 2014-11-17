@@ -31,7 +31,7 @@ public class MapReducer {
 	 * Hash de forma <Nume_fisier : Hash<Cuvant:Nr_ap>>
 	 * Hash ce contine rezultatele operatiilor de Map
 	 */
-	static ConcurrentHashMap<String,ArrayList<HashMap<String, Integer>>> MapResults;
+	static HashMap<String,ArrayList<HashMap<String, Integer>>> MapResults;
 	static Map<String, BigDecimal> results_map;
 	
 	public static void main(String[] args) throws NumberFormatException, IOException {
@@ -106,7 +106,7 @@ public class MapReducer {
 	public static void Map_Stage(){
 		File f;
 		/* Initializare Hash de Rezultate */
-		MapResults = new ConcurrentHashMap<String,ArrayList<HashMap<String, Integer>>>();
+		MapResults = new HashMap<String,ArrayList<HashMap<String, Integer>>>();
 		
 		/* Crearea workpool-ului */
 		ExecutorService map_workpool = Executors.newFixedThreadPool(NT);

@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 public class MapService implements Runnable {
-	ConcurrentHashMap<String,ArrayList<HashMap<String, Integer>>> MapResults;
+	HashMap<String,ArrayList<HashMap<String, Integer>>> MapResults;
 	HashMap<String, Integer> result;
 	String nume_fis;
 	long offset;
@@ -15,7 +15,7 @@ public class MapService implements Runnable {
 	String separator = " '`,;:/?~.><~`[]{}()!@#$%^&-+=*| \t\n\"\\";
 	
 	public MapService(String nume_fis, long offset, int D, 
-		ConcurrentHashMap<String,ArrayList<HashMap<String, Integer>>> MapResults) {
+		HashMap<String,ArrayList<HashMap<String, Integer>>> MapResults) {
 		this.nume_fis = nume_fis;
 		this.offset = offset;
 		this.D = D;
@@ -25,7 +25,7 @@ public class MapService implements Runnable {
 	
 	@Override
 	public void run() {
-//		System.out.println("Starget working " + nume_fis);
+		System.out.println("Starget working " + nume_fis);
 		RandomAccessFile file = null ;
 		byte[] bytes = null;
 	
@@ -104,7 +104,7 @@ public class MapService implements Runnable {
 			}
 			MapResults.put(nume_fis, list);
 		}
-//		System.out.println("Done");
+		System.out.println("Done");
 	}
 	
 }
