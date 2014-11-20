@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Collections;
@@ -12,11 +14,17 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+/*
+ * @author Flavius
+ * 
+ * Nume: Flavius-Costin Tirnacop 331CA
+ * E-mail: flavius.tirnacop@cti.pub.ro
+ * 
+ */
 
 public class MapReducer {
 	static int 	NT,	/* Numar threads */
@@ -93,11 +101,15 @@ public class MapReducer {
 		TreeMap<String,BigDecimal> sorted_map = new TreeMap<String,BigDecimal>(bvc);
 		sorted_map.putAll(results_map);
 		
+		
+		DecimalFormat df = new DecimalFormat("0.0000");
+		df.setRoundingMode(RoundingMode.DOWN);
+		
 		out = new BufferedWriter (new FileWriter(args[2]));
 		for(Map.Entry<String, BigDecimal> entry : sorted_map.entrySet()){
 			if(entry.getValue().compareTo(new BigDecimal(X)) > 0){
-				System.out.println(entry.getKey().toString()+entry.getValue());
-				out.write(entry.getKey().toString()+entry.getValue());
+				System.out.println(entry.getKey().toString()+df.format(entry.getValue()));
+				out.write(entry.getKey().toString()+df.format(entry.getValue()));
 				out.write("\n");
 			}
 		}
@@ -158,7 +170,7 @@ public class MapReducer {
 		
 		/* Crearea workpool-ului */
 		ExecutorService compare_workpool = Executors.newFixedThreadPool(NT);
-		for (int i = 0; i < DOCS.size()-1; i++) {
+		for (int i = 0; i < DOCS.size(); i++) {
 			for (int j = i+1; j < DOCS.size(); j++){
 				String fis_a = DOCS.get(i);
 				String fis_b = DOCS.get(j);
@@ -192,8 +204,12 @@ class ValueComparator implements Comparator<String> {
     public int compare(String a, String b) {
         if (base.get(a).compareTo(base.get(b)) > 0) {
             return -1;
-        } else {
+        } else if (base.get(a).compareTo(base.get(b)) < 0){
             return 1;
-        } // returning 0 would merge keys
+        }else{
+        	return a.compareTo(b);
+//        	return 1;
+        }
+        // returning 0 would merge keys
     }
 }

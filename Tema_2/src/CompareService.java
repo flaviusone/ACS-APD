@@ -5,6 +5,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/*
+ * @author Flavius
+ * 
+ * Nume: Flavius-Costin Tirnacop 331CA
+ * E-mail: flavius.tirnacop@cti.pub.ro
+ * 
+ */
 
 public class CompareService implements Runnable {
 	
@@ -27,7 +34,7 @@ public class CompareService implements Runnable {
 	public void run() {
 		int nr_cuv_a = 0;
 		int nr_cuv_b = 0;
-		BigDecimal sum_precise = new BigDecimal("0");
+//		BigDecimal sum_precise = new BigDecimal("0");
 		
 		for(Integer x : hash_a.values()){
 			nr_cuv_a += x;
@@ -39,7 +46,7 @@ public class CompareService implements Runnable {
 		/* Intersectam cuvintele din a si b */
 		Set<String> sa =  new HashSet<String>(hash_a.keySet());
 		Set<String> sb = new HashSet<String>(hash_b.keySet());
-		sa.addAll(sb);
+		sa.retainAll(sb);
 		
 		/* Calculam similaritate */
 		Float frec_a = new Float(0);
@@ -47,7 +54,6 @@ public class CompareService implements Runnable {
 		
 //		BigDecimal frec_a_pr = new BigDecimal("0");
 //		BigDecimal frec_b_pr = new BigDecimal("0");
-		System.out.println("Compare "+fis_a);
 		sum = (float) 0;
 		for(String cuvant : sa){
 			frec_a  = frecventa(cuvant, hash_a, nr_cuv_a);
@@ -63,9 +69,9 @@ public class CompareService implements Runnable {
 
 //		sum_precise = sum_precise.divide(new BigDecimal("100"), 4, RoundingMode.FLOOR);
 //		results_map.put(files, sum_precise);
-//		
+		
 		sum /= (float) 100;
-		results_map.put(files, new BigDecimal(sum).setScale(4, RoundingMode.FLOOR));
+		results_map.put(files, new BigDecimal(sum).setScale(5, RoundingMode.FLOOR));
 	}
 	
 	Float frecventa(String cuvant, HashMap<String, Integer> hash, int nr_cuv_doc){
@@ -83,7 +89,7 @@ public class CompareService implements Runnable {
 			aparitii_cuvant = 0;
 		BigDecimal aparitii = new BigDecimal(aparitii_cuvant.toString());
 		BigDecimal nr_cuv = new BigDecimal(String.valueOf(nr_cuv_doc));
-		frecventa = aparitii.divide(nr_cuv , 8, RoundingMode.FLOOR).multiply(new BigDecimal("100"));
+		frecventa = aparitii.divide(nr_cuv , 10, RoundingMode.FLOOR).multiply(new BigDecimal("100"));
 
 		return frecventa;	
 	}

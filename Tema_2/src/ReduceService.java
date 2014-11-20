@@ -1,6 +1,12 @@
 import java.util.LinkedList;
 import java.util.HashMap;
-
+/*
+ * @author Flavius
+ * 
+ * Nume: Flavius-Costin Tirnacop 331CA
+ * E-mail: flavius.tirnacop@cti.pub.ro
+ * 
+ */
 public class ReduceService implements Runnable{
 	
 	LinkedList<HashMap<String, Integer>> lista_map;

@@ -3,17 +3,22 @@ import java.io.RandomAccessFile;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
-
+/*
+ * @author Flavius
+ * 
+ * Nume: Flavius-Costin Tirnacop 331CA
+ * E-mail: flavius.tirnacop@cti.pub.ro
+ * 
+ */
 public class MapService implements Runnable {
 	HashMap<String,LinkedList<HashMap<String, Integer>>> MapResults;
 	HashMap<String, Integer> result;
 	String nume_fis;
 	long offset;
 	int D;
-	String separator = " '`,;:/?~.><~`[]{}()!@#$%^&-+=*| \t\n\"\\";
-	
+	String separator = "_,'`;:/?~.><~`[]{}()!@#$%^&-+=*| \t\n\r\"\\";
+//	String separator = ";:/?~\\.,><~`[]{}()!@#$%^&-+'=*\"| \t\n";
+
 	public MapService(String nume_fis, long offset, int D, 
 		HashMap<String,LinkedList<HashMap<String, Integer>>> MapResults) {
 		this.nume_fis = nume_fis;
@@ -25,10 +30,9 @@ public class MapService implements Runnable {
 	
 	@Override
 	public void run() {
-		System.out.println("Starget working " + nume_fis);
+//		System.out.println("Starget working " + nume_fis);
 		RandomAccessFile file = null ;
 		byte[] bytes = null;
-	
 		/* Citire fragment din fisier */
 		try {
 			/* Descidem fisier si seek la offset */
@@ -40,7 +44,7 @@ public class MapService implements Runnable {
 			if(offset == 0)
 				file.seek(offset);
 			else
-				file.seek(offset-1);
+				file.seek(offset-10);
 			/* Citire din fisier fragment */
 			bytes = new byte[D+100];
 			file.read(bytes);
@@ -59,6 +63,7 @@ public class MapService implements Runnable {
 			}
 			counter_start ++;
 		}
+		
 		/* Luam si ultimul cuvant */
 		int counter_end = D;
 		while(true){
@@ -69,9 +74,9 @@ public class MapService implements Runnable {
 		}
 		counter_end -= counter_start;
 		
-	
 		/* Recream fragment final */
 		String fragment_final = new String(bytes, counter_start, counter_end);
+		
 		/* Numarare aparitii */
 //		long startTime = System.currentTimeMillis();
 
@@ -104,7 +109,7 @@ public class MapService implements Runnable {
 			}
 			MapResults.put(nume_fis, list);
 		}
-		System.out.println("Done");
+//		System.out.println("Done");
 	}
 	
 }
