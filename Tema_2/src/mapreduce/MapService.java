@@ -4,6 +4,7 @@ import java.io.RandomAccessFile;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
+
 /*
  * @author Flavius
  * 
@@ -17,7 +18,6 @@ public class MapService implements Runnable {
 	String nume_fis;
 	long offset;
 	final private int D;
-//	String separator = "_,'`;:/?~.><~`[]{}()!@#$%^&-+=*| \t\n\"\\";
 	String separator = "_;:/?~\\.,><~`[]{}()!@#$%^&-+'=*\"| \t\n";
 
 	public MapService(String nume_fis, long offset, int D, 
@@ -57,7 +57,6 @@ public class MapService implements Runnable {
 		/* Sarim peste primul cuvant */
 		int counter_start = 0;
 		while(true){
-//			if(separator.contains(""+(char)bytes[counter_start])){
 			if(!Character.isLetterOrDigit(bytes[counter_start])){
 				break;
 			}
@@ -70,9 +69,7 @@ public class MapService implements Runnable {
 		}else{
 			counter_end = D; 
 			while(true){
-//				if(separator.contains(""+(char)bytes[counter_end])){
 				if(!Character.isLetterOrDigit(bytes[counter_end])){
-//					counter_end--;
 					break;
 				}
 				counter_end++;
@@ -83,25 +80,20 @@ public class MapService implements Runnable {
 		String fragment_final = new String(bytes, counter_start, counter_end-counter_start);
 		
 		/* Numarare aparitii */
-		long startTime = System.currentTimeMillis();
 
 		StringTokenizer st = new StringTokenizer(fragment_final, separator);
+		String cuvant;
+		Integer value;
 		while(st.hasMoreTokens()){
-			String cuvant = new String(st.nextToken().toLowerCase());
+			cuvant = new String(st.nextToken().toLowerCase());
 			/* Adaugare in hash */
-			Integer value = result.get(cuvant); 
+			value = result.get(cuvant); 
 			if(value == null){
 				result.put(cuvant, 1);
 			}else{
 				result.put(cuvant, value+1);
 			}
-		}		
-		long endTime = System.currentTimeMillis();
-		if((endTime-startTime)<500){
-			System.out.println(fragment_final.length());
 		}
-//		System.out.println("Tokenizer took " + (endTime - startTime) + " milliseconds");
-		
 				
 		/* Adaugare rezultat la hash */
 		synchronized (MapResults) {

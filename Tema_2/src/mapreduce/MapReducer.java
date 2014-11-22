@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 /*
  * @author Flavius
  * 
- * Nume: Flavius-Costin Tirnacop 331CA
+ * Nume: Flavius-Costin Tirnacop 341C1
  * E-mail: flavius.tirnacop@cti.pub.ro
  * 
  */
@@ -47,7 +47,6 @@ public class MapReducer {
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		/* Citire NT si nume fisier */
 		NT = Integer.parseInt(args[0]);
-//		NT = 1;
 		in = new BufferedReader(new FileReader(args[1]));
 		
 		/* Citire date din fisier */
@@ -60,38 +59,14 @@ public class MapReducer {
 		}
 		in.close();	
 		/****************************************************/
-		
-		long startTime = System.currentTimeMillis();
 
-		Map_Stage();
-
-		long endTime = System.currentTimeMillis();
-
-		System.out.println("Map took " + (endTime - startTime) + " milliseconds");
-		
-		startTime = System.currentTimeMillis();
-
-		Reduce_Stage();
-
-		endTime = System.currentTimeMillis();
-
-		System.out.println("Reduce took " + (endTime - startTime) + " milliseconds");
-		
-		startTime = System.currentTimeMillis();
-
-		Compare_Stage();
-
-		endTime = System.currentTimeMillis();
-
-		System.out.println("Compare took " + (endTime - startTime) + " milliseconds");
-		
 		/* Solve */
-//		Map_Stage();
-//		System.out.println("Map Stage Done");
-//		Reduce_Stage();
-//		System.out.println("Reduce Stage Done");
-//		Compare_Stage();
-//		System.out.println("Compare Stage Done");
+		Map_Stage();
+		System.out.println("Map Stage Done");
+		Reduce_Stage();
+		System.out.println("Reduce Stage Done");
+		Compare_Stage();
+		System.out.println("Compare Stage Done");
 		
 		/****************************************************/
 		/* Scriere date in fisierul de output */
@@ -107,10 +82,7 @@ public class MapReducer {
 		out = new BufferedWriter (new FileWriter(args[2]));
 		for(Map.Entry<String, BigDecimal> entry : sorted_map.entrySet()){
 			if(entry.getValue().compareTo(new BigDecimal(X)) > 0){
-				System.out.println(entry.getKey().toString()+df.format(entry.getValue()));
 				out.write(entry.getKey().toString()+df.format(entry.getValue()));
-//				System.out.println(entry.getKey().toString()+entry.getValue());
-//				out.write(entry.getKey().toString()+entry.getValue());
 				out.write("\n");
 			}
 		}

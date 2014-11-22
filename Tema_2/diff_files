@@ -1,0 +1,8 @@
+#!/bin/bash
+cat $1 | cut -f 1-2 -d\; > output
+cat $2 | cut -f 1-2 -d\; > output_ref
+diff output output_ref 2>&1
+rm output output_ref
+#$VAL1=$(cat $1)
+#$VAL2=$(cat $2)
+#echo "$VAL1"=="$VAL2"

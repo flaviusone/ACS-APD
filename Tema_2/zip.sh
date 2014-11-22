@@ -2,4 +2,4 @@
 rm *.zip
 TIME=$(date +%H:%M:%S)
 echo $TIME
-zip Tema1_$TIME src/ build.xml README.txt
+zip Tema2_$TIME src/mapreduce/*.java build.xml README.txt
