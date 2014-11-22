@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 /*
  * @author Flavius
  * 
- * Nume: Flavius-Costin Tirnacop 331CA
+ * Nume: Flavius-Costin Tirnacop 341C1
  * E-mail: flavius.tirnacop@cti.pub.ro
  * 
  */
@@ -16,9 +16,9 @@ public class MapService implements Runnable {
 	HashMap<String, Integer> result;
 	String nume_fis;
 	long offset;
-	int D;
-	String separator = ",'`;:/?~.><~`[]{}()!@#$%^&-+=*| \t\n\r\"\\";
-//	String separator = ";:/?~\\.,><~`[]{}()!@#$%^&-+'=*\"| \t\n";
+	final private int D;
+//	String separator = "_,'`;:/?~.><~`[]{}()!@#$%^&-+=*| \t\n\"\\";
+	String separator = "_;:/?~\\.,><~`[]{}()!@#$%^&-+'=*\"| \t\n";
 
 	public MapService(String nume_fis, long offset, int D, 
 		HashMap<String,LinkedList<HashMap<String, Integer>>> MapResults) {
@@ -33,6 +33,7 @@ public class MapService implements Runnable {
 	public void run() {
 		RandomAccessFile file = null ;
 		byte[] bytes = null;
+		int val = 0;
 		/* Citire fragment din fisier */
 		try {
 			/* Descidem fisier si seek la offset */
@@ -41,43 +42,48 @@ public class MapService implements Runnable {
 			} catch (Exception e) {
 				System.out.println(e);
 			}			
-			if(offset == 0)
-				file.seek(offset);
-			else
+			if(offset != 0)
 				file.seek(offset-1);
 			/* Citire din fisier fragment */
 			bytes = new byte[D+100];
-			file.read(bytes);
+			val = file.read(bytes);
 			file.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		
 		/* Modificare fragment */
 		
 		/* Sarim peste primul cuvant */
 		int counter_start = 0;
 		while(true){
-			if(separator.contains(""+(char)bytes[counter_start])){
+//			if(separator.contains(""+(char)bytes[counter_start])){
+			if(!Character.isLetterOrDigit(bytes[counter_start])){
 				break;
 			}
-			counter_start ++;
+			counter_start++;
 		}
-		
+		int counter_end;
 		/* Luam si ultimul cuvant */
-		int counter_end = D;
-		while(true){
-			if(separator.contains(""+(char)bytes[counter_end])){
-				break;
+		if (val != D + 100){
+			counter_end = val;
+		}else{
+			counter_end = D; 
+			while(true){
+//				if(separator.contains(""+(char)bytes[counter_end])){
+				if(!Character.isLetterOrDigit(bytes[counter_end])){
+//					counter_end--;
+					break;
+				}
+				counter_end++;
 			}
-			counter_end++;
 		}
-		counter_end -= counter_start;
 		
 		/* Recream fragment final */
-		String fragment_final = new String(bytes, counter_start, counter_end);
+		String fragment_final = new String(bytes, counter_start, counter_end-counter_start);
 		
 		/* Numarare aparitii */
+		long startTime = System.currentTimeMillis();
 
 		StringTokenizer st = new StringTokenizer(fragment_final, separator);
 		while(st.hasMoreTokens()){
@@ -89,7 +95,13 @@ public class MapService implements Runnable {
 			}else{
 				result.put(cuvant, value+1);
 			}
+		}		
+		long endTime = System.currentTimeMillis();
+		if((endTime-startTime)<500){
+			System.out.println(fragment_final.length());
 		}
+//		System.out.println("Tokenizer took " + (endTime - startTime) + " milliseconds");
+		
 				
 		/* Adaugare rezultat la hash */
 		synchronized (MapResults) {

@@ -45,7 +45,6 @@ public class MapReducer {
 	static Map<String, BigDecimal> results_map;
 	
 	public static void main(String[] args) throws NumberFormatException, IOException {
-
 		/* Citire NT si nume fisier */
 		NT = Integer.parseInt(args[0]);
 //		NT = 1;
@@ -95,7 +94,6 @@ public class MapReducer {
 //		System.out.println("Compare Stage Done");
 		
 		/****************************************************/
-		
 		/* Scriere date in fisierul de output */
 		
 		ValueComparator bvc =  new ValueComparator(results_map);
@@ -130,16 +128,17 @@ public class MapReducer {
 		/* Generarea de taskuri */
 		for(String fis : DOCS){
 			f = new File(fis);
-			for (int i = 0; i < (f.length() / D); i++) {
+			for (int i = 0; i < (f.length() / D)+1 ; i++) {
 				map_workpool.submit(new MapService(fis, i*D, D, MapResults));
 			}
+			
 		}
 
 		map_workpool.shutdown();
 		
 		/* De testat daca poate fi scos asta (e ca un barrier)*/
 		try {
-			  map_workpool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+			map_workpool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 		} catch (InterruptedException e) {
 			System.out.println("Error " + e);
 		}
@@ -211,7 +210,6 @@ class ValueComparator implements Comparator<String> {
             return 1;
         }else{
         	return a.compareTo(b);
-//        	return 1;
         }
         // returning 0 would merge keys
     }

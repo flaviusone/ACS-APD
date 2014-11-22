@@ -35,44 +35,47 @@ public class CompareService implements Runnable {
 	public void run() {
 		int nr_cuv_a = 0;
 		int nr_cuv_b = 0;
-//		BigDecimal sum_precise = new BigDecimal("0");
-		
+		BigDecimal sum_precise = new BigDecimal("0");
 		for(Integer x : hash_a.values()){
 			nr_cuv_a += x;
 		}
 		for(Integer x : hash_b.values()){
 			nr_cuv_b += x;
 		}
+//		System.out.println(fis_a + ";" + fis_b + " " + nr_cuv_a + " " + nr_cuv_b);
 		
 		/* Intersectam cuvintele din a si b */
+
 		Set<String> sa =  new HashSet<String>(hash_a.keySet());
 		Set<String> sb = new HashSet<String>(hash_b.keySet());
+//		System.out.println(fis_a + ";" + fis_b + " " +sa.size() + " " + sb.size());
 		sa.retainAll(sb);
+//		System.out.println(fis_a + ";" + fis_b + " " +sa.size() + " " + sb.size());
 		
 		/* Calculam similaritate */
 		Float frec_a = new Float(0);
 		Float frec_b = new Float(0);
 		
-//		BigDecimal frec_a_pr = new BigDecimal("0");
-//		BigDecimal frec_b_pr = new BigDecimal("0");
+		BigDecimal frec_a_pr = new BigDecimal("0");
+		BigDecimal frec_b_pr = new BigDecimal("0");
 		sum = (float) 0;
 		for(String cuvant : sa){
-			frec_a  = frecventa(cuvant, hash_a, nr_cuv_a);
-			frec_b  = frecventa(cuvant, hash_b, nr_cuv_b);
-			sum += frec_a * frec_b;
+//			frec_a  = frecventa(cuvant, hash_a, nr_cuv_a);
+//			frec_b  = frecventa(cuvant, hash_b, nr_cuv_b);
+//			sum += frec_a * frec_b;
 
-//			frec_a_pr  = frecventa_precise(cuvant, hash_a, nr_cuv_a);
-//			frec_b_pr  = frecventa_precise(cuvant, hash_b, nr_cuv_b);
-//			BigDecimal partial_sum = frec_a_pr.multiply(frec_b_pr);
-//			sum_precise = sum_precise.add(partial_sum);					
+			frec_a_pr  = frecventa_precise(cuvant, hash_a, nr_cuv_a);
+			frec_b_pr  = frecventa_precise(cuvant, hash_b, nr_cuv_b);
+			BigDecimal partial_sum = frec_a_pr.multiply(frec_b_pr);
+			sum_precise = sum_precise.add(partial_sum);					
 		}
 		String files = fis_a + ";" + fis_b + ";";
 
-//		sum_precise = sum_precise.divide(new BigDecimal("100"), 4, RoundingMode.FLOOR);
-//		results_map.put(files, sum_precise);
+		sum_precise = sum_precise.divide(new BigDecimal("100"));/*, 8, RoundingMode.FLOOR);*/
+		results_map.put(files, sum_precise);
 		
-		sum /= (float) 100;
-		results_map.put(files, new BigDecimal(sum).setScale(8, RoundingMode.FLOOR));
+//		sum /= (float) 100;
+//		results_map.put(files, new BigDecimal(sum.toString()));/*.setScale(8, RoundingMode.FLOOR));*/
 	}
 	
 	Float frecventa(String cuvant, HashMap<String, Integer> hash, int nr_cuv_doc){

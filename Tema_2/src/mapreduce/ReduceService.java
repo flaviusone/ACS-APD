@@ -1,6 +1,7 @@
 package mapreduce;
 import java.util.LinkedList;
 import java.util.HashMap;
+
 /*
  * @author Flavius
  * 
@@ -18,6 +19,7 @@ public class ReduceService implements Runnable{
 	public ReduceService(String nume_fis, LinkedList<HashMap<String, Integer>> list){
 		this.lista_map = list;
 		this.nume_fis = nume_fis;
+		this.b = new HashMap<String, Integer>();
 	}
 
 	@Override
@@ -40,6 +42,21 @@ public class ReduceService implements Runnable{
 			
 			lista_map.add(b);
 		}
+//		while(lista_map.size()>0){
+//			a = lista_map.remove(0);
+//			for(String cuv_a : a.keySet()){
+//				Integer value = b.get(cuv_a);
+//				if(value == null)
+//				{
+//					b.put(cuv_a, a.get(cuv_a));
+//				}
+//				else
+//				{
+//					b.put(cuv_a, a.get(cuv_a) + value);
+//				}
+//			}
+//		}
+//		lista_map.add(b);
 	}
 
 }
