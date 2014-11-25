@@ -1,0 +1,44 @@
+/*
+* Nume: Flavius Tirnacop
+* Grupa: 341C1
+* Tema: Tema3 APD
+* Fisier: README
+*/
+
+1.Descriere Implementare
+
+	S-a pornit de la ideea ca o impartire simpla a matricei de lucru in bucati consecutive catre workeri nu va fi scalabila deoarece unele procese vor avea mai mult de lucru decat altele.
+
+	Astfel am decis ca o impartire a fiecarui pixel din matrice intr-un mod random catre procese va genera un rezultat ce scaleaza in mod liniar.Toate pricesele vor avea acelasi volum de lucru.
+
+	Rank 0 a fost considerat rankul master;
+
+	Pentru asta am folosit urmatorul algoritm:
+	- se calculeaza numarul total de pixeli (width*height)
+	- se afla lungimea fragmentului repartizat fiecarui proces
+	- se genereaza o permutare a tututor numerelor de la 1 .. width*height intr-un vector de permutari.Aici am folosit functia randperm()
+	- se imparte vectorul de permutari in lungime_fragment bucati si se trimite catre procese
+	- se executa algoritmul pentru Julia sau Mandelbrot si se scrie intr-un vector de rezultate
+	- se primesc vectorii de rezutate de catre rankul master
+	- se umple matricea consultand vectorul mare de permutari generat la inceput
+
+2. Etape MPI
+
+	Algoritm comunicare MPI
+
+	Daca rank == 0
+		- Initializari, Citire din fisier
+		- Construire vector de permutari
+		- Trimitere date initiale catre procese:(x_min,x_max,y_min,y_max,c_real,c_imag,MAX_STEPS,resolution,,vector permutare)
+	altfel
+		- primesc datele initiale
+
+	Aplicare algoritm Mandelbrot sau Julia si constructie vector rezultate
+
+	Daca rank == 0
+		- primire vector rezultate
+		- constructie imagine
+		- afisare in fisier
+	altfel
+		- trimit vector rezutlate la rank 0
+
