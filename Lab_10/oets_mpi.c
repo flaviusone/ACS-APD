@@ -13,7 +13,7 @@ int main(int argc, char *argv[]){
 	int n = 10;
 	int element;
 	int aux;
-	int ca=0;cb=0;
+	int ca=0, cb=0;
 	MPI_Status Stat;
 
 	rc = MPI_Init(&argc,&argv);
@@ -33,29 +33,46 @@ int main(int argc, char *argv[]){
 		}
 		printf("\n");
 	}
-
+	/* ca - ceasul meu */
+	/* cb - ceasul primit */
 
 	for(pas = 0 ; pas< n ; pas++){
 		for(j= pas%2; j<n-1;j+=2){
 				//printf("pas = %d j = %d k= %d\n",pas,j,k );
 			if(rank == j){
+
 				MPI_Send(&element, 1, MPI_INT, j+1, tag, MPI_COMM_WORLD);
+				ca++;
 				MPI_Send(&ca, 1, MPI_INT, j+1, tag, MPI_COMM_WORLD);
-				MPI_Recv(&ca, 1, MPI_INT, j+1, tag, MPI_COMM_WORLD,&Stat);
+
 				MPI_Recv(&aux, 1, MPI_INT, j+1, tag, MPI_COMM_WORLD,&Stat);
+				ca++;
+				MPI_Recv(&cb, 1, MPI_INT, j+1, tag, MPI_COMM_WORLD,&Stat);
 				ca = MAX(ca,cb) + 1;
-				printf("Rank %d cu ca=%d cb=%d\n", rank, ca,cb);
-				if(aux<element) element = aux;
+				if(aux<element) {
+					element = aux;
+					ca++;
+				}
+
 			}
 			if(rank == j+1){
 				MPI_Recv(&aux, 1, MPI_INT, j, tag, MPI_COMM_WORLD,&Stat);
-				MPI_Recv(&ca, 1, MPI_INT, j, tag, MPI_COMM_WORLD,&Stat);
-				cb = MAX(ca,cb) + 1;
-				MPI_Send(&cb, 1, MPI_INT, j, tag, MPI_COMM_WORLD);
+				ca++;
+				MPI_Recv(&cb, 1, MPI_INT, j, tag, MPI_COMM_WORLD,&Stat);
+
+				ca = MAX(ca,cb) + 1;
 				MPI_Send(&element, 1, MPI_INT, j, tag, MPI_COMM_WORLD);
-				printf("Rank %d cu ca=%d cb=%d\n", rank, ca,cb);
-				if(aux>element) element = aux;
+				ca++;
+				MPI_Send(&ca, 1, MPI_INT, j, tag, MPI_COMM_WORLD);
+
+
+				if(aux>element) {
+					element = aux;
+					ca++;
+				}
+				// printf("Rank %d ca=%d cb=%d\n", rank, ca, cb);
 			}
+			printf("Rank %d ca=%d cb=%d\n", rank, ca, cb);
 			MPI_Barrier(MPI_COMM_WORLD);
 
 		}

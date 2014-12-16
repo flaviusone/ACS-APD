@@ -2,9 +2,9 @@
 # Grupa: 341C1
 # Makefile Tema 3
 
-sursa = temampi.c
+sursa = mjlonir.c
 out = main
-file_in = in/julia6.in
+file_in = in/mandelbrot2.in
 file_out = out
 proc = 4
 
