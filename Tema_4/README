@@ -1,0 +1,65 @@
+Nume: Tirnacop Flavius Costin
+Grupa: 341C1
+Tema 4 APD
+
+Mentiuni:
+	- in arhiva se gasesc:
+		- Makefile (cu regula all care face build si ruleaza)
+		- fisier topologie (contine cicluri)
+		- fisier mesaje
+		- programul genereaza fisiere de tip procX_out (X = numar proces)
+		folosite pentru afisariale proceselor
+	- codul este destul de amplu comentat asa ca voi detalia doar aspectele
+	importante aici
+	- din motive de sincronizare am fost nevoit sa folosesc taguri diferite
+	pentru etapele programului.]
+
+Partea 1 - Stabilirea Topologiei
+
+	Pentru prima parte se foloseste algoritmul sondaj ecou din laboratorul 10.
+	O modificare fata de algoritmul din laborator este ca acum graful poate fi
+	si ciclic astfel este nevoie de transmiterea unor topologii nule atunci cand
+	se primeste un mesaj de sondaj de la un proces care nu este parintele
+	actual (catre care se trimite topologia finala).
+
+	Odata stabilita topologia aceasta se trimite catre parinte pana ajunge la
+	rank 0 care este initiatorul sondajului.Apoi rank 0 trimite topologia
+	calculata catre toate procesele care la randul lor o vor redistribui.
+
+	Apoi fiecare proces isi calculeaza ruta optima catre toate celelalte noduri
+	folosind algoritmul Floyd-Warshall pentru a popula vectorul next_hop.
+
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!1!!! ATENTIE !!!!!!!!!!!!!!!!!!!!1!!!!!!!!!!
+	Pentru aceasta etapa datele sunt afisate in fisierele generate de forma
+	procX_out (X=numar proces)
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!1!!! ATENTIE !!!!!!!!!!!!!!!!!!!!1!!!!!!!!!!
+
+Partea 2 - Stabilirea unui sistem de posta
+
+	Odata ce toate nodurile au stabilita topologia etapa 2 poate incepe si va
+	rula dupa urmatorul algoritm:
+	- fiecare mesaj citeste din fisier cate o linie
+	- daca el este sursa atunci trimite mesaj mai departe (broadcast sau mesaj
+	normal)
+	- fiecare nod asteapta pana la primirea unui mesaj de END pentru a trece la
+	urmatoarea linie din fisier
+		- daca primeste mesaj de broadcast ii face rebroadcast
+		- daca primeste mesaj normal in routeaza conform tabelei proprii
+		- daca este destinatia mesajului atunci face broadcast la un mesaj de
+		END pentru a indica finalul etapei respective
+	Cand toate nodurile termina de citit din fisier se termina etapa 2.
+
+Partea 3 - Stabilirea unor structuri de conducere
+
+	Alegerea liderilor este oarecum asemanatoare cu algoritmul prezent la prima
+	parte astfel:
+	- Rank 0 initiaza vot si trimite mesaj de wake-up catre toti vecinii care la
+	randul lor fac rebroadcast
+	- fiecare nod isi calculeaza votul sau si il pune intr-un vector de rezultate
+	- la fel ca la primul pas pentru a evita cicluri se vor trimite vectori de
+	rezultate nuli
+	- dupa ce fiecare nod primeste ecou de la toti vecinii sai trimite vectorul
+	de rezultate updatat catre parinte
+	- rank 0 in final analizeaza voturile si stabileste noul lider sau daca este
+	nevoie sa se mai voteze odata, apoi va trimite tuturor vecinilor rezultatele
+	voturilor (care bineinteles vor face rebroadcast)
